@@ -1,8 +1,10 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+<script lang="ts">
+import HelloWorld from "./components/HelloWorld.vue";
+import Root from "./Root.vue";
 </script>
 
 <template>
-  <HelloWorld msg="Demo Configurator with Vue.js" />
+<Root>
+    <HelloWorld msg="Demo Configurator with Vue.js" />
+</Root>
 </template>
-
