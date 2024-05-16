@@ -17,10 +17,10 @@ const props = defineProps({
     allowedInExplain: Object as () => AllowedInExplain,
 });
 
-const { configurationClient, ...sessionContext} = props;
+const { configuratorClient, ...sessionContext} = props;
 
 useConfigurationManagement({
-    configurationClient,
+    configuratorClient,
     sessionContext
 })
 </script>
