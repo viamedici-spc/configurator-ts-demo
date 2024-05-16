@@ -1,13 +1,12 @@
 <template>
-    <div>
-        <slot></slot>
-    </div>
-    </template>
+<div>
+    <slot></slot>
+</div>
+</template>
+
     
-      
-    <script>
-    export default {
-        name: 'Label'
-    }
-    </script>
-    
+<script>
+export default {
+    name: 'Label'
+}
+</script>
