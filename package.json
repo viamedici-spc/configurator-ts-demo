@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@viamedici-spc/configurator-react": "^1.0.0",
+    "@viamedici-spc/configurator-ts": "^1.2.0",
     "vue": "^3.4.21"
   },
   "devDependencies": {
