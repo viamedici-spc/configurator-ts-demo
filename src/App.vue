@@ -1,10 +1,10 @@
 <script lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
+import Configurator from "./configurator/Configurator.vue";
 import Root from "./Root.vue";
 
 export default {
   components: {
-    HelloWorld,
+    Configurator,
     Root
   }
 }
@@ -12,7 +12,7 @@ export default {
 
 <template>
   <Root class="root">
-    <HelloWorld msg="Demo Configurator with Vue.js" />
+    <Configurator />
   </Root>
 </template>
 
