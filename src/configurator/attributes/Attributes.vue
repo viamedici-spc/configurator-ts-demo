@@ -3,7 +3,8 @@ import AttributeItem from "./AttributeItem.vue";
 import Root from "../../components/Root.vue";
 export default {
     components: {
-        AttributeItem
+        AttributeItem,
+        Root
     }
 }
 </script>
