@@ -1,6 +1,8 @@
 <script setup lang="ts">
-defineProps<{ msg: string }>();
+import { ref } from 'vue';
+const message = ref('Hello  Smart Configurator');
 </script>
+
 <template>
-  <h1>{{ msg }}</h1>
+  <div>{{ message }}</div>
 </template>
