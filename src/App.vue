@@ -1,6 +1,6 @@
 <script lang="ts">
 import Configurator from "./configurator/Configurator.vue";
-import Root from "./Root.vue";
+import Root from "./components/Root.vue";
 
 export default {
   components: {
