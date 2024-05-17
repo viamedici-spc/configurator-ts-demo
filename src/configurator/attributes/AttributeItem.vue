@@ -1,9 +1,9 @@
 <template>
   <Root class="attributeItem-root">
-    <Label>Label of Attribute</Label>
-    <p>{{ attributeId.localId }}</p>
-    <!--"attribute" should be called from useAttributes just as in the react demo -->
-    <AttributeTypeSelector :attribute="attribute" />
+    <Label>{{attributeIdToString(attributeId)}}</Label>
+    <!-- <p>{{ attributeId.localId }}</p> -->
+    <!--"attribute" should be called from useAttributes just as in the react -->
+    <!-- <AttributeTypeSelector :attribute="attribute" /> -->
   </Root>
 </template>
 
@@ -16,6 +16,7 @@ import ComponentAttribute from "./component/ComponentAttribute.vue";
 import ChoiceAttribute from "./choice/ChoiceAttribute.vue";
 import BooleanAttribute from "./boolean/BooleanAttribute.vue";
 import NumericAttribute from "./numeric/NumericAttribute.vue";
+import { attributeIdToString } from "../../utils/Naming";
 
 interface AttributeId {
   localId: string;
@@ -64,14 +65,16 @@ export default defineComponent({
     AttributeTypeSelector,
   },
   props: {
-    attributeId: {
+    attributeId: { 
       type: Object as PropType<AttributeId>,
       required: true,
     },
-    attribute: {
-      type: Object as PropType<Attribute>,
-      required: true,
-    },
+  },
+  setup(props) {
+    return {
+      attributeIdToString,
+      props, // Exposing props to the template
+    };
   },
 });
 </script>

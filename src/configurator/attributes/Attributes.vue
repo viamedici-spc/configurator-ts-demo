@@ -11,12 +11,14 @@ export default {
 
 <template>
 <Root class="attributes-root">
-    <AttributeItem :attributeId="{ localId: 'Construction1' }" />
-    <AttributeItem :attributeId="{ localId: 'Construction2' }" />
-    <AttributeItem :attributeId="{ localId: 'Construction3' }" />
-    <AttributeItem :attributeId="{ localId: 'Construction4' }" />
-    <AttributeItem :attributeId="{ localId: 'Construction5' }" />
-    <AttributeItem :attributeId="{ localId: 'Construction6' }" />
+    <AttributeItem :attributeId="{sharedConfigurationModelId: 'SalesShared', localId: 'SalesRegion'}" />
+    <AttributeItem :attributeId="{localId: 'Construction'}" />
+    <AttributeItem :attributeId="{localId: 'Transmission'}" />
+    <AttributeItem :attributeId="{componentPath: ['Transmission'], localId: 'Type'}" />
+    <AttributeItem :attributeId="{localId: 'EngineType'}" />
+    <AttributeItem :attributeId="{localId: 'HeavyDuty'}" />
+    <AttributeItem :attributeId="{localId: 'HorsePower'}" />
+    <AttributeItem :attributeId="{localId: 'Accessories'}" />
 </Root>
 </template>
 
