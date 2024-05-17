@@ -4,19 +4,24 @@ import Root from "../../components/Root.vue";
 export default {
     components: {
         AttributeItem,
-        Root
-    }
-}
+        Root,
+    },
+};
 </script>
 
 <template>
-    <Root class="attributes-root">
-        <AttributeItem :attributes="['SalesRegion', 'Construction', 'Transmission', 'TransmissionType', 'EngineType', 'HeavyDuty', 'HorsePower', 'Accessories']"></AttributeItem>
-    </Root>
+<Root class="attributes-root">
+    <AttributeItem :attributeId="{ localId: 'Construction1' }" />
+    <AttributeItem :attributeId="{ localId: 'Construction2' }" />
+    <AttributeItem :attributeId="{ localId: 'Construction3' }" />
+    <AttributeItem :attributeId="{ localId: 'Construction4' }" />
+    <AttributeItem :attributeId="{ localId: 'Construction5' }" />
+    <AttributeItem :attributeId="{ localId: 'Construction6' }" />
+</Root>
 </template>
 
 <style scoped>
-.attributes-root{
+.attributes-root {
     grid-area: attributes;
     display: grid;
     grid-auto-flow: row;
