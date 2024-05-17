@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Configuration from "./Configuration.vue";
-import ErrorIndicator from "./ErrorIndicator.vue";
+// import ErrorIndicator from "./ErrorIndicator.vue";
 import {
   AllowedRulesInExplainType,
   ClientSideLifeTimeHandlerOptions,
@@ -8,7 +8,7 @@ import {
   ConfigurationModelSourceType,
   createClient,
 } from "@viamedici-spc/configurator-ts";
-import { ConfigurationSuspender } from "@viamedici-spc/configurator-react";
+// import ConfigurationSuspender from "./ConfigurationSuspender.vue";
 import * as config from "../config";
 import Root from "../components/Root.vue";
 import Attributes from "./attributes/Attributes.vue";
@@ -41,10 +41,10 @@ const configurationModelSource = {
           :allowedInExplain="{ rules: { type: AllowedRulesInExplainType.all } }"
         >
           <div class="configurator-main">
-            <ErrorIndicator />
-            <ConfigurationSuspender>
+            <!-- <ErrorIndicator /> -->
+            <!-- <ConfigurationSuspender> -->
               <Attributes />
-            </ConfigurationSuspender>
+            <!-- </ConfigurationSuspender> -->
           </div>
         </Configuration>
       </template>
