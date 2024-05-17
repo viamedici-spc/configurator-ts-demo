@@ -1,22 +1,19 @@
-// useConfigurationManagement.ts
-import { ref, provide, inject, reactive } from 'vue';
+import { InjectionKey, Ref, ref, provide, inject } from 'vue';
+import { Configuration } from '@viamedici-spc/configurator-ts';
 
-import {
-  Configuration
-} from '@viamedici-spc/configurator-ts';
+// Define an injection key
+export const ConfigurationContextKey: InjectionKey<Ref<Configuration | null>> = Symbol('ConfigurationContext');
 
-const keys = {
-
-  configuration: 'configuration'
-};
-
-export function provideConfigurationContexts(
-
-  configuration: Configuration
-) {
-  provide(keys.configuration, reactive(configuration));
+// Utility to provide ConfigurationContext
+export function provideConfigurationContext(configuration: Ref<Configuration | null>) {
+  provide(ConfigurationContextKey, configuration);
 }
 
-export function useConfigurationContext() {
-  return inject(keys.configuration) as Configuration;
+// Utility to use ConfigurationContext
+export function useConfigurationContext(): Ref<Configuration | null> {
+  const context = inject(ConfigurationContextKey);
+  if (!context) {
+    throw new Error('useConfigurationContext must be used within a provider with ConfigurationContextKey');
+  }
+  return context;
 }
