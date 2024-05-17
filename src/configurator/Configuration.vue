@@ -5,12 +5,13 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, provide, ref, onMounted } from "vue";
+import {  provide, ref, onMounted } from "vue";
 import {
   ConfigurationModelSourceType,
   createClient,
 } from "@viamedici-spc/configurator-ts";
 import * as config from "../config";
+import { createLogger } from "vite";
 onMounted(() => {
   console.log("Mounted");
 });
