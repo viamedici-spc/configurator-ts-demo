@@ -1,38 +1,34 @@
-<script setup lang="ts">
-import {  provide } from 'vue';
-import { useConfigurationManagement } from '../utils/useConfigurationManagement'
-import {
-  AllowedInExplain,
-  AttributeRelations,
-  ConfigurationModelSource,
-  IConfiguratorClient,
-  SessionContext,
-} from "@viamedici-spc/configurator-ts";
+<template>
+  <div>
+    <slot></slot>
+  </div>
+</template>
 
-const props = defineProps({
-    configuratorClient: Object as () => IConfiguratorClient,
-    configurationModelSource: Object as () => ConfigurationModelSource,
-    attributeRelations: Object as () => AttributeRelations,
-    usageRuleParameters: Object as () => Record<string, string>,
-    allowedInExplain: Object as () => AllowedInExplain,
+<script setup lang="ts">
+import { defineProps, provide, ref, onMounted } from "vue";
+import {
+  ConfigurationModelSourceType,
+  createClient,
+} from "@viamedici-spc/configurator-ts";
+import * as config from "../config";
+onMounted(() => {
+  console.log("Mounted");
 });
 
-const { configuratorClient, ...sessionContext} = props;
+const client = createClient({
+  sessionHandler: { accessToken: config.hcaEngineAccessToken },
+  hcaEngineBaseUrl: config.hcaEngineEndpoint,
+});
 
-useConfigurationManagement({
-    configuratorClient,
-    sessionContext
-})
+const session = await client.createSession({
+  configurationModelSource: {
+    type: ConfigurationModelSourceType.Channel,
+    deploymentName: config.configurationModelPackage.deploymentName,
+    channel: config.configurationModelPackage.channel,
+  },
+});
+
+console.log(session.getConfiguration())
+
+// Provide context values
 </script>
-
-<script lang="ts">
-export default {
-  name: "Configuration",
-};
-</script>
-
-<template>
-  <div>Configuration</div>
-  <!-- slots to recognize and accept children props-->
-  <slot></slot>
-</template>
