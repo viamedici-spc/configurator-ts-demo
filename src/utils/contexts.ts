@@ -1,4 +1,4 @@
-import { InjectionKey, Ref, ref, provide, inject } from 'vue';
+import { InjectionKey, Ref, provide, inject } from 'vue';
 import { Configuration } from '@viamedici-spc/configurator-ts';
 
 // Define an injection key

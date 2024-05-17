@@ -5,9 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref, onMounted } from "vue";
+import {  ref, onMounted } from "vue";
 import {
-  ConfigurationContextKey,
   provideConfigurationContext,
 } from "../utils/contexts";
 import {

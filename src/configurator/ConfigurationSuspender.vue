@@ -1,3 +1,5 @@
+<!-- THIS CONFIGURATION SUSPENDER HAS TO BE CREATED INSTEAD OF BEING IMPORTED FROM /configurator-react bib | Reason : Incompable with vue-->
+
 <!-- <template>
   <slot></slot>
 </template>
