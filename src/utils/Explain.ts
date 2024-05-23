@@ -33,7 +33,7 @@ export async function processExplainAnswer(answer: ExplainAnswer, applySolution:
         .map(e => {
             const solutionText = e.solution ? "Has Solution" : "No Solution";
 
-            return `Explanation ${e.number} -- ${solutionText}:\n${indent(e.text)}`;
+            return `Explanation ${e.number} -- ${solutionText}:\n${indent(e.text!)}`;
         })
         .join("\n\n");
 
@@ -50,7 +50,7 @@ export async function processExplainAnswer(answer: ExplainAnswer, applySolution:
                     const explanation = numberedExplanations.find(e => e.number === parsedSolutionToApply);
                     if (explanation != null) {
                         if (explanation.solution != null) {
-                            await handleError(() => applySolution(explanation.solution));
+                            await handleError(() => applySolution(explanation.solution!));
                             break;
                         } else {
                             alert("The entered explanation number has no solution.");
@@ -90,7 +90,7 @@ function mapDecisionExplanations(answer: { decisionExplanations: ReadonlyArray<D
                 .join("\n");
             return {
                 text: text,
-                solution: e.solution
+                solution: e.solution!
             } satisfies  Explanation;
         });
 }
