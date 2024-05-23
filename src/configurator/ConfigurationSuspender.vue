@@ -1,16 +1,15 @@
-<!-- THIS CONFIGURATION SUSPENDER HAS TO BE CREATED INSTEAD OF BEING IMPORTED FROM /configurator-react bib | Reason : Incompable with vue-->
 
-<!-- <template>
+<template>
   <slot></slot>
 </template>
 
 <script setup lang="ts">
-import { useConfigurationInitialization } from '../utils/ConfigurationLifeCylce';
+import { useConfigurationInitializationContext } from '../utils/contexts';
 
 
-const { isInitializingPromise } = useConfigurationInitialization();
+const { isInitializingPromise } = useConfigurationInitializationContext();
 
 if (isInitializingPromise?.promise) {
   throw isInitializingPromise.promise;
 }
-</script> -->
+</script>

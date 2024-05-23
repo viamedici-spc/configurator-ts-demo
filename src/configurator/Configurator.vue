@@ -8,7 +8,7 @@ import {
   ConfigurationModelSourceType,
   createClient,
 } from "@viamedici-spc/configurator-ts";
-// import ConfigurationSuspender from "./ConfigurationSuspender.vue";
+import ConfigurationSuspender from "./ConfigurationSuspender.vue";
 import * as config from "../config";
 import Root from "../components/Root.vue";
 import Attributes from "./attributes/Attributes.vue";
@@ -42,9 +42,9 @@ const configurationModelSource = {
         >
           <div class="configurator-main">
             <!-- <ErrorIndicator /> -->
-            <!-- <ConfigurationSuspender> -->
+            <ConfigurationSuspender>
               <Attributes />
-            <!-- </ConfigurationSuspender> -->
+            </ConfigurationSuspender>
           </div>
         </Configuration>
       </template>
