@@ -1,34 +1,38 @@
 <template>
   <Root class="attributeItem-root">
-    <Label>{{attributeIdToString(attributeId)}}</Label>
-    <!-- <p>{{ attributeId.localId }}</p> -->
-    <!--"attribute" should be called from useAttributes just as in the react -->
-    <!-- <AttributeTypeSelector :attribute="attribute" /> -->
+    <Label>{{ attributeIdToString(attributeId!) }}</Label>
+    <template v-if="attribute">
+      <AttributeTypeSelector :attribute="attribute" />
+    </template>
+    <template v-else>
+      <span>Loading attributes...</span>
+      
+    </template>
   </Root>
 </template>
 
 <script lang="ts">
-import { Attribute, AttributeType } from "@viamedici-spc/configurator-ts";
+import { Attribute, AttributeType, GlobalAttributeId } from "@viamedici-spc/configurator-ts";
 import Root from "../../components/Root.vue";
 import Label from "../../components/Label.vue";
-import { PropType, defineComponent, h } from "vue";
+import { PropType, ref, defineComponent, h, inject, computed, provide } from "vue";
 import ComponentAttribute from "./component/ComponentAttribute.vue";
 import ChoiceAttribute from "./choice/ChoiceAttribute.vue";
 import BooleanAttribute from "./boolean/BooleanAttribute.vue";
 import NumericAttribute from "./numeric/NumericAttribute.vue";
 import { attributeIdToString } from "../../utils/Naming";
+import { useAttributes } from "../../utils/useAttributes";
 
-interface AttributeId {
-  localId: string;
-  [key: string]: any;
-}
+const activeAttributeContext = Symbol("activeAttributeContext");
+
+export const useActiveAttribute = () => {
+  return inject(activeAttributeContext, null);
+};
+
 
 const AttributeTypeSelector = defineComponent({
   props: {
-    attribute: {
-      type: Object as PropType<Attribute>,
-      required: true,
-    },
+    attribute: Object as PropType<Attribute>,
   },
   components: {
     ComponentAttribute,
@@ -47,11 +51,8 @@ const AttributeTypeSelector = defineComponent({
           return h(BooleanAttribute);
         case AttributeType.Component:
           return h(ComponentAttribute);
-        case null:
-        case undefined: 
-        return h('span', 'Attribute not found !')
         default:
-        return h('span', 'Unknown attribute type')
+          return h("span", "Unknown attribute type");
       }
     };
   },
@@ -65,15 +66,18 @@ export default defineComponent({
     AttributeTypeSelector,
   },
   props: {
-    attributeId: { 
-      type: Object as PropType<AttributeId>,
-      required: true,
-    },
+    attributeId: Object as PropType<GlobalAttributeId> 
   },
-  setup(props) {
+  setup (props) {
+    const attributes = useAttributes([props.attributeId!], false);
+
+    const attribute = computed(() => attributes[0]);
+    
+    provide(activeAttributeContext, props.attributeId);
+
     return {
       attributeIdToString,
-      props, // Exposing props to the template
+      attribute,
     };
   },
 });
