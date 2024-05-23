@@ -12,6 +12,7 @@ import ConfigurationSuspender from "./ConfigurationSuspender.vue";
 import * as config from "../config";
 import Root from "../components/Root.vue";
 import Attributes from "./attributes/Attributes.vue";
+import ConfigurationSatisfactionIndication from "./ConfigurationSatisfactionIndication.vue";
 
 const configuratorClient = createClient({
   sessionHandler: {
@@ -28,7 +29,7 @@ const configurationModelSource = {
 
 <template>
   <Root class="configurator-root">
-    <div class="configurator-header">Configurator Vue.js Demo</div>
+    <h1 class="configurator-header">Configurator Vue.js Demo</h1>
 
     <Suspense>
       <template #fallback>
@@ -40,6 +41,7 @@ const configurationModelSource = {
           :configurationModelSource="configurationModelSource"
           :allowedInExplain="{ rules: { type: AllowedRulesInExplainType.all } }"
         >
+        <ConfigurationSatisfactionIndication />
           <div class="configurator-main">
             <!-- <ErrorIndicator /> -->
             <ConfigurationSuspender>
