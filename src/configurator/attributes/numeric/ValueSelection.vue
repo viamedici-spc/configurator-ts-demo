@@ -25,6 +25,9 @@ import {
   ExplainQuestionType,
   ExplainQuestionSubject,
 } from "@viamedici-spc/configurator-ts";
+import { useStore } from 'vuex';
+
+const store = useStore();
 
 const activeAttribute = useActiveAttribute();
 const { attribute, makeDecision, explain, applySolution } = useNumericAttribute(activeAttribute!);
@@ -70,6 +73,7 @@ const applyPendingValue = async () => {
       return null;
     }
   );
+  store.commit("setRerender");
 };
 
 const inputValue = computed(() => {

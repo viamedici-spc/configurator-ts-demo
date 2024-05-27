@@ -56,13 +56,6 @@ export default defineComponent({
       );
       if (props.isMultiselect) {
         emit("change", selectedOptions as string[]);
-
-      } else if (props.blockedValues) {
-        emit("change", selectedOptions as string[]);
-
-      } else if (props.selectedValues!) {
-        emit("change", selectedOptions as string[]);
-        
       } else {
         emit("change", target.value as string);
       }
@@ -72,6 +65,7 @@ export default defineComponent({
       handleChange,
       allowedValues,
       blockedValues,
+
     };
   }
 });

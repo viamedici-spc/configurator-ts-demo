@@ -11,67 +11,64 @@ import {
 import {attributeIdToString, constraintIdToString} from "./Naming";
 import {handleError} from "./PromiseErrorHandling";
 
-export function handleExplain(explain: () => Promise<ExplainAnswer>, applySolution: (solution: ExplainSolution) => Promise<void>) {
-    return handleError(explain, r => processExplainAnswer(r, applySolution));
+export async function  handleExplain(explain: () => Promise<ExplainAnswer>, applySolution: (solution: ExplainSolution) => Promise<void>) {
+    return await  handleError(explain, async (result) => processExplainAnswer(result, applySolution));
 }
 
-export async function processExplainAnswer(answer: ExplainAnswer, applySolution: (solution: ExplainSolution) => Promise<void>) {
+export async function processExplainAnswer(
+    answer: ExplainAnswer,
+    applySolution: (solution: ExplainSolution) => Promise<void>
+  ): Promise<void> {
     const decisionsExplainAnswer = answer as DecisionsExplainAnswer;
     const constraintsExplainAnswer = answer as ConstraintsExplainAnswer;
-
-    const decisionExplanations = decisionsExplainAnswer != null ? mapDecisionExplanations(decisionsExplainAnswer) : null;
-    const constraintExplanations = constraintsExplainAnswer != null ? mapConstraintExplanations(constraintsExplainAnswer) : null;
-
-    const numberedExplanations = [decisionExplanations, constraintExplanations]
-        .flat()
-        .map((e, i) => ({
-            ...e,
-            number: i + 1
-        }));
-    const hasAnyExplanationASolution = numberedExplanations.find(e => e.solution) != null;
+  
+    const decisionExplanations = decisionsExplainAnswer ? mapDecisionExplanations(decisionsExplainAnswer) : [];
+    const constraintExplanations = constraintsExplainAnswer ? mapConstraintExplanations(constraintsExplainAnswer) : [];
+  
+    const numberedExplanations = [...decisionExplanations, ...constraintExplanations]
+      .map((e, i) => ({
+        ...e,
+        number: i + 1
+      }));
+    const hasAnyExplanationASolution = numberedExplanations.some(e => e.solution != null);
     const message = numberedExplanations
-        .map(e => {
-            const solutionText = e.solution ? "Has Solution" : "No Solution";
-
-            return `Explanation ${e.number} -- ${solutionText}:\n${indent(e.text!)}`;
-        })
-        .join("\n\n");
-
+      .map(e => {
+        const solutionText = e.solution ? "Has Solution" : "No Solution";
+        return `Explanation ${e.number} -- ${solutionText}:\n${indent(e.text!)}`;
+      })
+      .join("\n\n");
+  
     while (true) {
-        if (hasAnyExplanationASolution) {
-            const messageWithActionRecommendation = message + "\n\nPlease enter the explanation number to apply the solution for:";
-            const solutionToApply = prompt(messageWithActionRecommendation);
-            if (solutionToApply != null) {
-                const parsedSolutionToApply = parseInt(solutionToApply);
-                if (Number.isNaN(parsedSolutionToApply)) {
-                    alert("The entered explanation number is invalid.");
-                    // Start over
-                } else {
-                    const explanation = numberedExplanations.find(e => e.number === parsedSolutionToApply);
-                    if (explanation != null) {
-                        if (explanation.solution != null) {
-                            await handleError(() => applySolution(explanation.solution!));
-                            break;
-                        } else {
-                            alert("The entered explanation number has no solution.");
-                            // Start over
-                        }
-                    } else {
-                        alert("The entered explanation number is not assigned to an explanation.");
-                        // Start over
-                    }
-                }
-            } else {
-                // Prompt was cancelled.
+      if (hasAnyExplanationASolution) {
+        const messageWithActionRecommendation = message + "\n\nPlease enter the explanation number to apply the solution for:";
+        const solutionToApply = prompt(messageWithActionRecommendation);
+        if (solutionToApply != null) {
+          const parsedSolutionToApply = parseInt(solutionToApply);
+          if (Number.isNaN(parsedSolutionToApply)) {
+            alert("The entered explanation number is invalid.");
+          } else {
+            const explanation = numberedExplanations.find(e => e.number === parsedSolutionToApply);
+            if (explanation != null) {
+              if (explanation.solution != null) {
+                await handleError(() => applySolution(explanation.solution!));
                 break;
+              } else {
+                alert("The entered explanation number has no solution.");
+              }
+            } else {
+              alert("The entered explanation number is not assigned to an explanation.");
             }
+          }
         } else {
-            // There are no solutions.
-            alert(message);
-            break;
+          break;
         }
+      } else {
+        alert(message);
+        break;
+      }
     }
-}
+  }
+  
 
 
 type Explanation = {

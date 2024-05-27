@@ -16,11 +16,15 @@
 <script setup lang="ts">
 import {useActiveAttribute} from "../AttributeItem.vue";
 import { useComponentAttribute } from "../../../utils/useAttributes";
-import {AttributeInterpreter, ComponentDecisionState, DecisionKind, ExplainQuestionType} from "@viamedici-spc/configurator-ts";
+import {AttributeInterpreter, ComponentDecisionState, DecisionKind, ExplainQuestionSubject, ExplainQuestionType} from "@viamedici-spc/configurator-ts";
 import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
 import { attributeIdToString } from "../../../utils/Naming";
 import CommonValueSelection, {Value} from "../CommonValueSelection.vue";
 import { handleExplain } from "../../../utils/Explain";
+import { useStore } from "vuex";
+
+
+const store = useStore();
 
 const nothingValueId = "<nothing>";
 const includedValueId = "included";
@@ -34,6 +38,7 @@ const activeAttribute = useActiveAttribute();
             if (attribute.decision?.kind === DecisionKind.Explicit) {
                 console.info("Reset decision for %s", attributeIdToString(attribute.id));
                 await handleDecisionResponse(() => makeDecision(null));
+                store.commit("setRerender");
             }
         } else {
             const state = valueId === includedValueId ? ComponentDecisionState.Included : ComponentDecisionState.Excluded;
@@ -42,10 +47,13 @@ const activeAttribute = useActiveAttribute();
                 console.info("Make decision for %s: %s", attributeIdToString(attribute.id), state.toString());
 
                 await handleDecisionResponse(() => makeDecision(state));
+                store.commit("setRerender");
             } else {
                 console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), state.toString());
 
-                // handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, state: state}, "full"), applySolution);
+                await handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, state: state, subject: ExplainQuestionSubject.component, attributeId:activeAttribute!}, "full"), applySolution);
+                store.commit("setRerender");
+                // Here store.commit is executed while handleExplain is getting executed
             }
         }
     };

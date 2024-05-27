@@ -21,7 +21,7 @@ watch(
   (newVal) => {
     if (newVal) {
       rerenderTrigger.value++;
-      console.log("Rerender Number:", rerenderTrigger.value);
+      console.log("Re-rendered:", rerenderTrigger.value , "time(s).");
     } else {
       console.log("No re-rendering is made so far by now!");
     }

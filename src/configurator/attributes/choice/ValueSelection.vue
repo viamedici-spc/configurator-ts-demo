@@ -20,6 +20,7 @@ import {
   ChoiceValueDecisionState,
   ChoiceValueId,
   DecisionKind,
+  ExplainQuestionSubject,
   ExplainQuestionType,
 } from "@viamedici-spc/configurator-ts";
 import { useActiveAttribute } from "../AttributeItem.vue";
@@ -56,7 +57,7 @@ const selectedChoiceValueId = selectedChoiceValueIds[0] ?? nothingChoiceValueId;
 
 const callStore = () => {
   store.commit("setRerender");
-  console.log("setRerender called from ValueSelection!");
+  console.log("setRerender store mutation called from Choice.ValueSelection!");
 };
 const onChange = async (value: string | string[]) => {
   const choiceValueIds = Array.isArray(value) ? value : [value];
@@ -78,8 +79,7 @@ const onChange = async (value: string | string[]) => {
           "Reset all decisions for %s",
           attributeIdToString(attribute.id)
         );
-        await handleDecisionResponse(() => clearDecisions());
-        callStore();
+        await handleDecisionResponse(() => clearDecisions()).finally(()=>  callStore());
       }
     } else if (allowedChoiceValues.some((v) => v.id === choiceValueId)) {
       console.info(
@@ -93,16 +93,16 @@ const onChange = async (value: string | string[]) => {
         ? null
         : ChoiceValueDecisionState.Included;
 
-      await handleDecisionResponse(() => makeDecision(choiceValueId, state));
-      callStore(); 
+      await handleDecisionResponse(() => makeDecision(choiceValueId, state)).finally(()=>  callStore());
     } else if (choiceValueId != null && choiceValueId !== "") {
       console.info(
         "Explain blocked value for %s.%s",
         attributeIdToString(attribute.id),
         choiceValueId
       );
-      // await handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, choiceValueId: choiceValueId, state: ChoiceValueDecisionState.Included}, "full"), applySolution);
-      callStore(); 
+      await handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, choiceValueId: choiceValueId, state: ChoiceValueDecisionState.Included, attributeId: activeAttribute!, subject: ExplainQuestionSubject.choiceValue}, "full"), applySolution).finally(()=>{
+        callStore();
+      })
     }
   }
 };

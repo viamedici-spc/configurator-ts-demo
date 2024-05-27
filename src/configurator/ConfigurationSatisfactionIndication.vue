@@ -1,5 +1,5 @@
 <template>
-  <div class="configurationSatisfactionIndication-root">
+  <div :class="['configurationSatisfactionIndication-root', { satisfied: isSatisfied }]">
     <div class="configurationSatisfactionIndication-text">
       {{
         isSatisfied ? "Configuration satisfied" : "Configuration unsatisfied"
@@ -16,16 +16,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import { useExplain } from '../utils/useAttributes';
 import { handleExplain } from '../utils/Explain';
-import { useConfigurationContext } from '../utils/contexts';
+import { useConfigurationContext, useSessionContext } from '../utils/contexts';
 
 const  configuration  = useConfigurationContext();
+const session = useSessionContext();
 const { explain, applySolution } = useExplain();
 
-const isSatisfied = ref(configuration.value?.isSatisfied);
+const isSatisfied = ref(configuration.value?.isSatisfied ?? false);
+
+watch(
+  () => session.value?.getConfiguration(), 
+  (newSession) => {
+    if (newSession) {
+      isSatisfied.value = newSession.isSatisfied;
+    }
+  },
+  { deep: true, immediate: true }
+);
 
 const onExplain = () => {
   handleExplain(() => explain(b => b.whyIsNotSatisfied.configuration, 'full'), applySolution);
