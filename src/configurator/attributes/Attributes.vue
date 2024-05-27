@@ -1,37 +1,57 @@
-<script lang="ts">
-import AttributeItem from "./AttributeItem.vue";
-import Root from "../../components/Root.vue";
-export default {
-    components: {
-        AttributeItem,
-        Root,
-    },
-};
-</script>
-
 <template>
-<Root class="attributes-root">
-    <AttributeItem :attributeId="{sharedConfigurationModelId: 'SalesShared', localId: 'SalesRegion'}" />
-    <AttributeItem :attributeId="{localId: 'Construction'}" />
-    <AttributeItem :attributeId="{localId: 'Transmission'}" />
-    <AttributeItem :attributeId="{componentPath: ['Transmission'], localId: 'Type'}" />
-    <AttributeItem :attributeId="{localId: 'EngineType'}" />
-    <AttributeItem :attributeId="{localId: 'HeavyDuty'}" />
-    <AttributeItem :attributeId="{localId: 'HorsePower'}" />
-    <AttributeItem :attributeId="{localId: 'Accessories'}" />
-</Root>
+  <div class="attributes-root">
+      <AttributeItem
+        v-for="attributeId in attributeIds"
+        :key="`${attributeId.localId}-${rerenderTrigger}`"
+        :attributeId="attributeId"
+      />
+  </div>
 </template>
+
+<script setup lang="ts">
+import AttributeItem from "./AttributeItem.vue";
+import { ref, watch } from "vue";
+import { useStore } from "vuex";
+
+const store = useStore();
+const rerenderTrigger = ref(0);
+
+watch(
+  () => store.state.rerender,
+  (newVal) => {
+    if (newVal) {
+      rerenderTrigger.value++;
+      console.log("Rerender Number:", rerenderTrigger.value);
+    } else {
+      console.log("No re-rendering is made so far by now!");
+    }
+  },
+  { immediate: true }
+);
+
+const attributeIds = ref([
+  { sharedConfigurationModelId: "SalesShared", localId: "SalesRegion" },
+  { localId: "Construction" },
+  { localId: "Transmission" },
+  { componentPath: ["Transmission"], localId: "Type" },
+  { localId: "EngineType" },
+  { localId: "HeavyDuty" },
+  { localId: "HorsePower" },
+  { localId: "Accessories" },
+]);
+</script>
 
 <style scoped>
 .attributes-root {
-    grid-area: attributes;
-    display: grid;
-    grid-auto-flow: row;
-    align-content: start;
-    gap: 1em;
-    background-color: var(--color-base-1);
-    padding: var(--size-card-padding);
-    border-radius: var(--shape-card-border-radius);
-    box-shadow: var(--shadow-card);
+  grid-area: inherit;
+  display: grid;
+  grid-auto-flow: row;
+  align-content: start;
+  gap: 1em;
+  background-color: var(--color-base-1);
+  padding: var(--size-card-padding);
+  border-radius: var(--shape-card-border-radius);
+  box-shadow: var(--shadow-card);
 }
+
 </style>

@@ -1,45 +1,36 @@
-<!-- <template>
-  <Root class="configurationSatisfactionIndication-root">
+<template>
+  <div class="configurationSatisfactionIndication-root">
     <div class="configurationSatisfactionIndication-text">
       {{
         isSatisfied ? "Configuration satisfied" : "Configuration unsatisfied"
       }}
     </div>
-    <div
-      v-if="!isSafistied"
+    <button
+      v-if="!isSatisfied"
       class="configurationSatisfactionIndication-button"
       @click="onExplain"
     >
       Explain
-    </div>
-  </Root>
+  </button>
+</div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
-import {
-  useConfiguration,
-  useConfigurationInitialization,
-  useExplain,
-} from "@viamedici-spc/configurator-react";
+import { useExplain } from '../utils/useAttributes';
 import { handleExplain } from '../utils/Explain';
+import { useConfigurationContext } from '../utils/contexts';
 
-const { isInitializing } = useConfigurationInitialization();
-const { configuration } = useConfiguration();
+const  configuration  = useConfigurationContext();
 const { explain, applySolution } = useExplain();
 
-const isSatisfied = ref(configuration.isSatisfied);
+const isSatisfied = ref(configuration.value?.isSatisfied);
 
 const onExplain = () => {
   handleExplain(() => explain(b => b.whyIsNotSatisfied.configuration, 'full'), applySolution);
 };
 
-onMounted(() => {
-  if (isInitializing) {
-    return;
-  }
-});
 
 
 </script>
@@ -73,4 +64,4 @@ onMounted(() => {
 .configurationSatisfactionIndication-button {
   grid-area: explain-button;
 }
-</style> -->
+</style>

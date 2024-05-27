@@ -9,7 +9,6 @@ import { useChoiceAttribute } from '../../../utils/useAttributes';
 import { useActiveAttribute } from '../AttributeItem.vue';
 
  const activeAttribute = useActiveAttribute();
- const attribute = useChoiceAttribute(activeAttribute!);
  const clearDecisions = useChoiceAttribute(activeAttribute!);
 
  const onClick = async()=>{

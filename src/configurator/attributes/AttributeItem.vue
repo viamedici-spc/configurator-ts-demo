@@ -1,96 +1,123 @@
 <template>
-  <Root class="attributeItem-root">
-    <Label>{{ attributeIdToString(attributeId!) }}</Label>
-    <template v-if="attribute">
-      <AttributeTypeSelector :attribute="attribute" />
+<div class="root">
+    <div class="label">
+        {{ attributeIdToString(attributeId!) }}
+    </div>
+    <template v-if="isAttributeReady">
+        <AttributeTypeSelector :attribute="attribute" />
     </template>
     <template v-else>
-      <span>Loading attributes...</span>
-      
+        <span>Loading attributes...</span>
     </template>
-  </Root>
+</div>
 </template>
 
 <script lang="ts">
-import { Attribute, AttributeType, GlobalAttributeId } from "@viamedici-spc/configurator-ts";
-import Root from "../../components/Root.vue";
-import Label from "../../components/Label.vue";
-import { PropType, ref, defineComponent, h, inject, computed, provide } from "vue";
+import {
+    Attribute,
+    AttributeType,
+    GlobalAttributeId,
+} from "@viamedici-spc/configurator-ts";
+import {
+    PropType,
+    defineComponent,
+    h,
+    inject,
+    computed,
+    provide,
+    ref,
+    watch,
+} from "vue";
 import ComponentAttribute from "./component/ComponentAttribute.vue";
 import ChoiceAttribute from "./choice/ChoiceAttribute.vue";
 import BooleanAttribute from "./boolean/BooleanAttribute.vue";
 import NumericAttribute from "./numeric/NumericAttribute.vue";
-import { attributeIdToString } from "../../utils/Naming";
-import { useAttributes } from "../../utils/useAttributes";
+import {
+    attributeIdToString
+} from "../../utils/Naming";
+import {
+    useAttributes
+} from "../../utils/useAttributes";
 
 const activeAttributeContext = Symbol("activeAttributeContext");
 
 export const useActiveAttribute = () => {
-  return inject(activeAttributeContext, null);
+    return inject(activeAttributeContext, null);
 };
 
-
 const AttributeTypeSelector = defineComponent({
-  props: {
-    attribute: Object as PropType<Attribute>,
-  },
-  components: {
-    ComponentAttribute,
-    ChoiceAttribute,
-    BooleanAttribute,
-    NumericAttribute,
-  },
-  setup(props) {
-    return () => {
-      switch (props.attribute?.type) {
-        case AttributeType.Choice:
-          return h(ChoiceAttribute);
-        case AttributeType.Numeric:
-          return h(NumericAttribute);
-        case AttributeType.Boolean:
-          return h(BooleanAttribute);
-        case AttributeType.Component:
-          return h(ComponentAttribute);
-        default:
-          return h("span", "Unknown attribute type");
-      }
-    };
-  },
+    props: {
+        attribute: Object as PropType < Attribute > ,
+    },
+    components: {
+        ComponentAttribute,
+        ChoiceAttribute,
+        BooleanAttribute,
+        NumericAttribute,
+    },
+    setup(props) {
+        return () => {
+            switch (props.attribute?.type) {
+                case AttributeType.Choice:
+                    return h(ChoiceAttribute);
+                case AttributeType.Numeric:
+                    return h(NumericAttribute);
+                case AttributeType.Boolean:
+                    return h(BooleanAttribute);
+                case AttributeType.Component:
+                    return h(ComponentAttribute);
+                default:
+                    return h("span", "Unknown attribute type");
+            }
+        };
+    },
 });
 
 export default defineComponent({
-  name: "AttributeItem",
-  components: {
-    Root,
-    Label,
-    AttributeTypeSelector,
-  },
-  props: {
-    attributeId: Object as PropType<GlobalAttributeId> 
-  },
-  setup (props) {
-    const attributes = useAttributes([props.attributeId!], false);
+    name: "AttributeItem",
+    components: {
+        AttributeTypeSelector,
+    },
+    props: {
+        attributeId: Object as PropType < GlobalAttributeId > ,
+    },
+    setup(props) {
+        const attributes = useAttributes([props.attributeId!], false);
 
-    const attribute = computed(() => attributes[0]);
-    
-    provide(activeAttributeContext, props.attributeId);
+        const attribute = computed(() => attributes[0]);
 
-    return {
-      attributeIdToString,
-      attribute,
-    };
-  },
+        const isAttributeReady = ref(false);
+
+        provide(activeAttributeContext, props.attributeId);
+
+        watch(
+            attribute,
+            (newVal) => {
+                if (newVal) {
+                    isAttributeReady.value = true;
+                }
+            }, {
+                immediate: true
+            }
+        );
+
+        return {
+            attributeIdToString,
+            attribute,
+            isAttributeReady,
+        };
+    },
 });
 </script>
 
 <style scoped>
-.attributeItem-root {
-  display: grid;
-  grid-template-columns: [label] 0.4fr 0.5em [selection] 0.6fr;
-  grid-template-rows: [label selection] auto;
+.root {
+    display: grid;
+    grid-template-columns: [label] 0.4fr 0.5em [selection] 0.6fr;
+    grid-template-rows: [label selection] auto;
 }
 
-.attributeItem-label {
-  grid-area: label;
+.label {
+    grid-area: label;
 }
 </style>

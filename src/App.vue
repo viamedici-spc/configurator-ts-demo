@@ -1,19 +1,19 @@
 <script lang="ts">
 import Configurator from "./configurator/Configurator.vue";
-import Root from "./components/Root.vue";
+import './globalStyles.css';
 
 export default {
   components: {
     Configurator,
-    Root
   }
 }
+
 </script>
 
 <template>
-  <Root class="root">
+  <div class="root">
     <Configurator />
-  </Root>
+  </div>
 </template>
 
 <style scoped>

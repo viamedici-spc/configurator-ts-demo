@@ -35,37 +35,4 @@ export function useSessionContext(): Ref<IConfigurationSession | null> {
   return context;
 }
 
-// Utility to provide ConfigurationInitializationContext
-export function provideConfigurationInitializationContext(initialization: Ref<ConfigurationInitialization | null>) {
-  provide(ConfigurationInitializationContextKey, initialization);
-}
 
-// Utility to use ConfigurationInitializationContext
-export function useConfigurationInitializationContext(): ConfigurationInitialization {
-  const context = inject(ConfigurationInitializationContextKey);
-  if (!context) {
-    throw new Error('useConfigurationInitializationContext must be used within a provider with ConfigurationInitializationContextKey');
-  }
-  return {
-    isInitializing:context.value?.isInitializing! ,
-    isInitializingPromise: context.value?.isInitializingPromise!,
-    error:context.value?.error!
-  }
-}
-
-// Utility to provide ConfigurationUpdatingContext
-export function provideConfigurationUpdatingContext(updating: Ref<ConfigurationUpdating | null>) {
-  provide(ConfigurationUpdatingContextKey, updating);
-}
-
-// Utility to use ConfigurationUpdatingContext
-export function useConfigurationUpdatingContext(): ConfigurationUpdating {
-  const context = inject(ConfigurationUpdatingContextKey);
-  if (!context) {
-    throw new Error('useConfigurationUpdatingContext must be used within a provider with ConfigurationUpdatingContextKey');
-  }
-  return {
-    isUpdating:context.value?.isUpdating!,
-    error: context.value?.error!
-  }
-}

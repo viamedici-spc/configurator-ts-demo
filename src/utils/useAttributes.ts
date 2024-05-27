@@ -1,11 +1,11 @@
 import { computed, ref, watchEffect } from 'vue';
 import { useConfigurationContext } from "./contexts";
-import { Attribute, GlobalAttributeId, ConfigurationInterpreter, ExplainQuestion, ExplainQuestionType, WhyIsChoiceValueStateNotPossible, ChoiceAttribute, WhyIsStateNotPossible, ExplainQuestionParam, ExplainSolution, DecisionsExplainAnswer, ConstraintsExplainAnswer, FullExplainAnswer,ChoiceValueDecisionState, ChoiceValueId, ExplainQuestionSubject, AttributeType, ExplicitChoiceDecision, ExplicitDecision, SetManyMode } from "@viamedici-spc/configurator-ts";
-import {  UseExplainResult } from '@viamedici-spc/configurator-react';
+import { Attribute, GlobalAttributeId, ConfigurationInterpreter, ExplainQuestion, ExplainQuestionType, WhyIsChoiceValueStateNotPossible, ChoiceAttribute, WhyIsStateNotPossible, ExplainQuestionParam, ExplainSolution, DecisionsExplainAnswer, ConstraintsExplainAnswer, FullExplainAnswer, ChoiceValueDecisionState, ChoiceValueId, ExplainQuestionSubject, AttributeType, ExplicitChoiceDecision, ExplicitDecision, SetManyMode, WhyIsComponentStateNotPossible, ComponentAttribute, ComponentDecisionState, ExplicitComponentDecision, WhyIsBooleanStateNotPossible, ExplicitBooleanDecision, BooleanAttribute, WhyIsNumericStateNotPossible, NumericAttribute, ExplicitNumericDecision } from "@viamedici-spc/configurator-ts";
+import { UseExplainResult } from '@viamedici-spc/configurator-react';
 import { getChoiceAttributeResetDecisions } from '../internal/attributeHelper';
 import { match } from 'ts-pattern';
 import { useSessionContext } from './contexts';
-
+import { getComponentSubtreeResetDecisions } from '../internal/attributeHelper';
 
 function throwIfConfigurationIsNull(configuration: any) {
     if (configuration === null || configuration === undefined) {
@@ -47,101 +47,231 @@ export type UseChoiceAttributeResult = UseAttributeExplainResult<WhyIsChoiceValu
 }
 
 
-export function useChoiceAttribute(attributeId: GlobalAttributeId): UseChoiceAttributeResult | undefined {
-  const configuration = useConfigurationContext();
-  const session = ref(useSessionContext());
-  const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
-  const setManyDecision = (d: ReadonlyArray < ExplicitDecision > , m: SetManyMode) => session.value?.setMany(d, m);
-  const attributeExplainResult = useAttributeExplain < WhyIsChoiceValueStateNotPossible > (attributeId, ExplainQuestionSubject.choiceValue);
+export function useChoiceAttribute(attributeId: GlobalAttributeId): UseChoiceAttributeResult {
+    const configuration = useConfigurationContext();
+    const session = ref(useSessionContext());
+    const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
+    const setManyDecision = (d: ReadonlyArray<ExplicitDecision>, m: SetManyMode) => session.value?.setMany(d, m);
+    const attributeExplainResult = useAttributeExplain<WhyIsChoiceValueStateNotPossible>(attributeId, ExplainQuestionSubject.choiceValue);
 
-  if (configuration === null || configuration === undefined) {
-      throw new Error('Configuration is null or undefined');
-  }
+    if (configuration === null || configuration === undefined) {
+        throw new Error('Configuration is null or undefined');
+    }
 
-  const attribute = ref < ChoiceAttribute | undefined > (ConfigurationInterpreter.getChoiceAttribute(configuration.value!, attributeId));
+    const attribute = ref<ChoiceAttribute | undefined>(ConfigurationInterpreter.getChoiceAttribute(configuration.value!, attributeId));
 
-  const result = computed(() => {
-      if (!attribute.value) return undefined;
-      return {
-          makeDecision: async (ChoiceValueId: ChoiceValueId, state: ChoiceValueDecisionState | null | undefined) => {
-              await makeDecision({
-                      type: AttributeType.Choice,
-                      attributeId: attributeId,
-                      choiceValueId: ChoiceValueId,
-                      state: state,
-                  } as ExplicitChoiceDecision)
-          },
-          clearDecisions: async () => {
-              const resetDecisions = attribute.value ? getChoiceAttributeResetDecisions(attribute.value) : [];
-              if (resetDecisions.length > 0) await setManyDecision(resetDecisions, {
-                  type: "Default"
-              })
-          },
-          attribute: attribute.value,
-          ...attributeExplainResult
-      };
-  });
+    const result = computed(() => {
+        if (!attribute.value) return undefined;
+        return {
+            makeDecision: async (ChoiceValueId: ChoiceValueId, state: ChoiceValueDecisionState | null | undefined) => {
+                await makeDecision({
+                    type: AttributeType.Choice,
+                    attributeId: attributeId,
+                    choiceValueId: ChoiceValueId,
+                    state: state,
+                } as ExplicitChoiceDecision)
+            },
+            clearDecisions: async () => {
+                const resetDecisions = attribute.value ? getChoiceAttributeResetDecisions(attribute.value) : [];
+                if (resetDecisions.length > 0) await setManyDecision(resetDecisions, {
+                    type: "Default"
+                })
+            },
+            attribute: attribute.value,
+            ...attributeExplainResult
+        };
+    });
 
-  watchEffect(() => {
-      if (!attribute.value) {
-          return undefined;
-      }
-  });
+    watchEffect(() => {
+        if (!attribute.value) {
+            return undefined;
+        }
+    });
 
-  return result.value;
+    return result.value!;
 
 }
 
 export function useExplain(): UseExplainResult {
-  const configurationSession = useSessionContext();
-  if (!configurationSession) throw new Error("Connfiguration Session is not ready for use!");
+    const configurationSession = useSessionContext();
+    if (!configurationSession) throw new Error("Connfiguration Session is not ready for use!");
 
-  const explainAndApplySolution = computed(() => ({
-      explain: (q: ExplainQuestion, a: "decisions" | "constraints" | "full"): Promise < any > => {
-          switch (a) {
-              case "decisions":
-                  return configurationSession.value!.explain(q, a)
-              case "constraints":
-                  return configurationSession.value!.explain(q, a);
-              case "full":
-                  return configurationSession.value!.explain(q, a);
-              default:
-                  throw new Error(`Unknown type: ${a}`);
-          }
-      },
-      applySolution: (s) => configurationSession.value!.applySolution(s) 
-  }) satisfies UseExplainResult);
+    const explainAndApplySolution = computed(() => ({
+        explain: (q: ExplainQuestion, a: "decisions" | "constraints" | "full"): Promise<any> => {
+            switch (a) {
+                case "decisions":
+                    return configurationSession.value!.explain(q, a)
+                case "constraints":
+                    return configurationSession.value!.explain(q, a);
+                case "full":
+                    return configurationSession.value!.explain(q, a);
+                default:
+                    throw new Error(`Unknown type: ${a}`);
+            }
+        },
+        applySolution: (s) => configurationSession.value!.applySolution(s)
+    }) satisfies UseExplainResult);
 
-  return explainAndApplySolution.value;
+    return explainAndApplySolution.value;
 }
 
-export function useAttributeExplain < T extends WhyIsStateNotPossible > (attributeId: GlobalAttributeId, whyIsStateNotPossibleSubject: T["subject"]): UseAttributeExplainResult<T> {
-  const {
-      explain,
-      applySolution
-  } = useExplain();
+export function useAttributeExplain<T extends WhyIsStateNotPossible>(attributeId: GlobalAttributeId, whyIsStateNotPossibleSubject: T["subject"]): UseAttributeExplainResult<T> {
+    const {
+        explain,
+        applySolution
+    } = useExplain();
 
-  const explainAndApplySolution = computed < UseAttributeExplainResult < T >> (() => ({
-      explain: (question: ExplainQuestionParam<T> , answerType: "decisions" | "constraints" | "full"): Promise < any > => {
-          const subject = match(question.question)
-              .with(ExplainQuestionType.whyIsNotSatisfied, () => ExplainQuestionSubject.attribute)
-              .otherwise(() => whyIsStateNotPossibleSubject);
+    const explainAndApplySolution = computed<UseAttributeExplainResult<T>>(() => ({
+        explain: (question: ExplainQuestionParam<T>, answerType: "decisions" | "constraints" | "full"): Promise<any> => {
+            const subject = match(question.question)
+                .with(ExplainQuestionType.whyIsNotSatisfied, () => ExplainQuestionSubject.attribute)
+                .otherwise(() => whyIsStateNotPossibleSubject);
 
-          const explainQuestion = {
-              ...question,
-              subject: subject,
-              attributeId: attributeId
-          } as ExplainQuestion;
-          
+            const explainQuestion = {
+                ...question,
+                subject: subject,
+                attributeId: attributeId
+            } as ExplainQuestion;
 
-          return match(answerType)
-              .with("decisions", a => explain(explainQuestion, a))
-              .with("constraints", a => explain(explainQuestion, a))
-              .with("full", a => explain(explainQuestion, a))
-              .exhaustive();
-      },
-      applySolution: applySolution
-  }));
 
-  return explainAndApplySolution.value;
+            return match(answerType)
+                .with("decisions", a => explain(explainQuestion, a))
+                .with("constraints", a => explain(explainQuestion, a))
+                .with("full", a => explain(explainQuestion, a))
+                .exhaustive();
+        },
+        applySolution: applySolution
+    }));
+
+    return explainAndApplySolution.value;
+}
+
+
+type UseComponentAttributeResult = UseAttributeExplainResult<WhyIsComponentStateNotPossible> & {
+    attribute: ComponentAttribute,
+    makeDecision: (state: ComponentDecisionState | null | undefined) => Promise<void>,
+    clearSubtree: () => Promise<void>
+};
+
+export function useComponentAttribute(attributeId: GlobalAttributeId): UseComponentAttributeResult {
+    const configuration = useConfigurationContext();
+    const session = ref(useSessionContext());
+    const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
+    const setManyDecision = (d: ReadonlyArray<ExplicitDecision>, m: SetManyMode) => session.value?.setMany(d, m);
+
+    const attributeExplainResult = useAttributeExplain<WhyIsComponentStateNotPossible>(attributeId, ExplainQuestionSubject.component);
+
+    throwIfConfigurationIsNull(configuration);
+
+    const attributes = configuration.value?.attributes;
+
+    const attribute = ConfigurationInterpreter.getComponentAttribute(configuration.value!, attributeId);
+
+    const results = computed( () => {
+        return {
+            makeDecision: async (state: ComponentDecisionState | null | undefined) => await makeDecision({
+                type: AttributeType.Component,
+                attributeId: attributeId,
+                state: state
+            } as ExplicitComponentDecision),
+
+            clearSubtree: async () => {
+                const resetDecisions = attribute ? getComponentSubtreeResetDecisions(attributeId, attributes!) : [];
+                if (resetDecisions.length > 0) await setManyDecision(resetDecisions, {
+                    type: "Default"
+                })
+            },
+            attribute: attribute!,
+            ...attributeExplainResult
+        }
+    })
+    watchEffect(() => {
+        if (!attribute) {
+            return undefined;
+        }
+    });
+
+    return results.value!;
+}
+
+export type UseBooleanAttributeResult = UseAttributeExplainResult<WhyIsBooleanStateNotPossible> & {
+    attribute: BooleanAttribute,
+    makeDecision: (state: boolean | null | undefined) => Promise<void>
+};
+
+export function useBooleanAttribute(attributeId: GlobalAttributeId): UseBooleanAttributeResult {
+    const configuration = useConfigurationContext();
+    const session = ref(useSessionContext());
+    const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
+
+    const attributeExplainResult = useAttributeExplain<WhyIsBooleanStateNotPossible>(attributeId, ExplainQuestionSubject.boolean);
+
+    throwIfConfigurationIsNull(configuration);
+
+    const attribute = ConfigurationInterpreter.getBooleanAttribute(configuration.value!, attributeId);
+
+    const results = computed( () => {
+        return {
+            makeDecision: async (state: boolean | null | undefined) => makeDecision({
+                type: AttributeType.Boolean,
+                attributeId: attributeId,
+                state: state
+            } as ExplicitBooleanDecision),
+            attribute: attribute!,
+            ...attributeExplainResult
+        }
+    });
+
+    
+
+    watchEffect(() => {
+        if (!attribute) {
+            return undefined;
+        }
+    });
+
+    return results.value!;
+}
+
+
+export type UseNumericAttributeResult = UseAttributeExplainResult<WhyIsNumericStateNotPossible> & {
+    attribute: NumericAttribute,
+    makeDecision: (state: number | null | undefined) => Promise<void>,
+
+};
+
+export function useNumericAttribute(attributeId: GlobalAttributeId): UseNumericAttributeResult {
+    const configuration = useConfigurationContext();
+    const session = ref(useSessionContext());
+    const makeDecision = async (state: number | null | undefined) => {
+        if (state !== null && state !== undefined) {
+            await session.value?.makeDecision({
+                type: AttributeType.Numeric,
+                attributeId: attributeId,
+                state: state
+            } as ExplicitNumericDecision);
+        }
+    };
+    const attributeExplainResult = useAttributeExplain<WhyIsNumericStateNotPossible>(attributeId, ExplainQuestionSubject.numeric);
+
+    throwIfConfigurationIsNull(configuration);
+
+    const attribute = ConfigurationInterpreter.getNumericAttribute(configuration.value!, attributeId);
+
+    const results = computed(() => {
+        return {
+            makeDecision: makeDecision,
+            attribute: attribute!,
+            ...attributeExplainResult
+        }
+    });
+
+    
+    watchEffect(() => {
+        if (!attribute) {
+            return undefined;
+        }
+    });
+
+    return results.value!
 }

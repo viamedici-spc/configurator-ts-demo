@@ -1,15 +1,17 @@
 <template>
-    <div>
-      <span v-if="isMandatory" :style="{ color: mandatoryColor }">
+        <span> · </span>
+      <span  :style="{ color: mandatoryColor }">
         {{ mandatoryText }}
       </span>
-      <span v-if="isMultiSelect" :style="{ color: selectionModeColor }">
+      <span> · </span>
+      <span  :style="{ color: selectionModeColor }">
         {{ selectionModeText }}
       </span>
-      <span v-if="allowedValues" :style="{ color: allowedValuesColor }">
+      <span> · </span>
+      <span :style="{ color: allowedValuesColor }">
         {{ allowedValuesText }}
       </span>
-    </div>
+      <span> · </span>
   </template>
   
   <script lang="ts">
@@ -17,7 +19,7 @@
   import { useActiveAttribute } from '../AttributeItem.vue';
   import { AttributeInterpreter } from '@viamedici-spc/configurator-ts';
   import { useChoiceAttribute } from '../../../utils/useAttributes';
-  
+
   export default defineComponent({
     name: 'Indicators',
     setup() {
@@ -58,7 +60,3 @@
     },
   });
   </script>
-  
-  <style scoped>
-  </style>
-  

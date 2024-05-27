@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useConfigurationInitialization, useConfigurationUpdating } from '@viamedici-spc/configurator-react';
-import Root from '../components/Root.vue';
 
 type ConfigurationError = {
   type: string;
@@ -35,11 +34,11 @@ const retry = () => {
 </script>
 
 <template>
-  <Root v-if="error" class="errorIndicator-root">
+  <div v-if="error" class="errorIndicator-root">
     <div class="errorIndicator-title">{{ error.type === 'init' ? 'Initialization Error' : 'Update Error' }}</div>
     <p>Error type: {{ JSON.stringify(error.type) }}</p>
     <button @click="retry">Retry</button>
-  </Root>
+  </div>
 </template>
 
 <style scoped>
