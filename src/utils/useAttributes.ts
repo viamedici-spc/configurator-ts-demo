@@ -1,11 +1,42 @@
-import { computed, ref, watchEffect } from 'vue';
-import { useConfigurationContext } from "./contexts";
-import { Attribute, GlobalAttributeId, ConfigurationInterpreter, ExplainQuestion, ExplainQuestionType, WhyIsChoiceValueStateNotPossible, ChoiceAttribute, WhyIsStateNotPossible, ExplainQuestionParam, ExplainSolution, DecisionsExplainAnswer, ConstraintsExplainAnswer, FullExplainAnswer, ChoiceValueDecisionState, ChoiceValueId, ExplainQuestionSubject, AttributeType, ExplicitChoiceDecision, ExplicitDecision, SetManyMode, WhyIsComponentStateNotPossible, ComponentAttribute, ComponentDecisionState, ExplicitComponentDecision, WhyIsBooleanStateNotPossible, ExplicitBooleanDecision, BooleanAttribute, WhyIsNumericStateNotPossible, NumericAttribute, ExplicitNumericDecision } from "@viamedici-spc/configurator-ts";
-import { UseExplainResult } from '@viamedici-spc/configurator-react';
-import { getChoiceAttributeResetDecisions } from '../internal/attributeHelper';
-import { match } from 'ts-pattern';
-import { useSessionContext } from './contexts';
-import { getComponentSubtreeResetDecisions } from '../internal/attributeHelper';
+import {ComputedRef, computed, ref, watchEffect} from 'vue';
+import {useConfigurationContext} from "./contexts";
+import {
+    Attribute,
+    GlobalAttributeId,
+    ConfigurationInterpreter,
+    ExplainQuestion,
+    ExplainQuestionType,
+    WhyIsChoiceValueStateNotPossible,
+    ChoiceAttribute,
+    WhyIsStateNotPossible,
+    ExplainQuestionParam,
+    ExplainSolution,
+    DecisionsExplainAnswer,
+    ConstraintsExplainAnswer,
+    FullExplainAnswer,
+    ChoiceValueDecisionState,
+    ChoiceValueId,
+    ExplainQuestionSubject,
+    AttributeType,
+    ExplicitChoiceDecision,
+    ExplicitDecision,
+    SetManyMode,
+    WhyIsComponentStateNotPossible,
+    ComponentAttribute,
+    ComponentDecisionState,
+    ExplicitComponentDecision,
+    WhyIsBooleanStateNotPossible,
+    ExplicitBooleanDecision,
+    BooleanAttribute,
+    WhyIsNumericStateNotPossible,
+    NumericAttribute,
+    ExplicitNumericDecision
+} from "@viamedici-spc/configurator-ts";
+import {UseExplainResult} from '@viamedici-spc/configurator-react';
+import {getChoiceAttributeResetDecisions} from '../internal/attributeHelper';
+import {match} from 'ts-pattern';
+import {useSessionContext} from './contexts';
+import {getComponentSubtreeResetDecisions} from '../internal/attributeHelper';
 
 function throwIfConfigurationIsNull(configuration: any) {
     if (configuration === null || configuration === undefined) {
@@ -31,6 +62,25 @@ export function useAttributes(attributes?: GlobalAttributeId[], ignoreMissingAtt
     });
 
     return computedAttributes.value
+}
+
+export function useAttributesRef(attributes?: GlobalAttributeId[], ignoreMissingAttributes: boolean = false): ComputedRef<readonly Attribute[]> {
+
+    const configuration = useConfigurationContext();
+
+    throwIfConfigurationIsNull(configuration);
+
+    const computedAttributes = computed<readonly Attribute[]>(() => {
+        if (!attributes) return configuration.value?.attributes || [];
+        if (!configuration.value) {
+            return [];
+        }
+        return attributes
+            .map(id => ConfigurationInterpreter.getAttribute(configuration.value!, id))
+            .filter(attr => ignoreMissingAttributes ? attr !== null : true) as Attribute[];
+    });
+
+    return computedAttributes
 }
 
 export type UseAttributeExplainResult<T extends WhyIsStateNotPossible> = {
@@ -91,6 +141,45 @@ export function useChoiceAttribute(attributeId: GlobalAttributeId): UseChoiceAtt
     return result.value!;
 
 }
+
+export function useChoiceAttributeRef(attributeId: GlobalAttributeId): ComputedRef<UseChoiceAttributeResult> {
+    const configuration = useConfigurationContext();
+    const session = ref(useSessionContext());
+    const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
+    const setManyDecision = (d: ReadonlyArray<ExplicitDecision>, m: SetManyMode) => session.value?.setMany(d, m);
+    const attributeExplainResult = useAttributeExplain<WhyIsChoiceValueStateNotPossible>(attributeId, ExplainQuestionSubject.choiceValue);
+
+    if (configuration === null || configuration === undefined) {
+        throw new Error('Configuration is null or undefined');
+    }
+
+    const result = computed(() => {
+        const attribute = ConfigurationInterpreter.getChoiceAttribute(configuration.value!, attributeId);
+        if (!attribute) return undefined;
+        return {
+            makeDecision: async (ChoiceValueId: ChoiceValueId, state: ChoiceValueDecisionState | null | undefined) => {
+                await makeDecision({
+                    type: AttributeType.Choice,
+                    attributeId: attributeId,
+                    choiceValueId: ChoiceValueId,
+                    state: state,
+                } as ExplicitChoiceDecision)
+            },
+            clearDecisions: async () => {
+                const resetDecisions = attribute ? getChoiceAttributeResetDecisions(attribute) : [];
+                if (resetDecisions.length > 0) await setManyDecision(resetDecisions, {
+                    type: "Default"
+                })
+            },
+            attribute: attribute,
+            ...attributeExplainResult
+        };
+    });
+
+    return result as any;
+
+}
+
 
 export function useExplain(): UseExplainResult {
     const configurationSession = useSessionContext();
@@ -167,7 +256,7 @@ export function useComponentAttribute(attributeId: GlobalAttributeId): UseCompon
 
     const attribute = ConfigurationInterpreter.getComponentAttribute(configuration.value!, attributeId);
 
-    const results = computed( () => {
+    const results = computed(() => {
         return {
             makeDecision: async (state: ComponentDecisionState | null | undefined) => await makeDecision({
                 type: AttributeType.Component,
@@ -210,7 +299,7 @@ export function useBooleanAttribute(attributeId: GlobalAttributeId): UseBooleanA
 
     const attribute = ConfigurationInterpreter.getBooleanAttribute(configuration.value!, attributeId);
 
-    const results = computed( () => {
+    const results = computed(() => {
         return {
             makeDecision: async (state: boolean | null | undefined) => makeDecision({
                 type: AttributeType.Boolean,
@@ -222,7 +311,6 @@ export function useBooleanAttribute(attributeId: GlobalAttributeId): UseBooleanA
         }
     });
 
-    
 
     watchEffect(() => {
         if (!attribute) {
@@ -266,7 +354,7 @@ export function useNumericAttribute(attributeId: GlobalAttributeId): UseNumericA
         }
     });
 
-    
+
     watchEffect(() => {
         if (!attribute) {
             return undefined;

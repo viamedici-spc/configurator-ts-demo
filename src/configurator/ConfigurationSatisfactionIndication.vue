@@ -1,55 +1,36 @@
 <template>
-  <div :class="['configurationSatisfactionIndication-root', { satisfied: isSatisfied }]">
-    <div class="configurationSatisfactionIndication-text">
+  <div :class="['configuration-satisfaction-indication', { satisfied: configuration?.isSatisfied }]">
+    <div class="text">
       {{
-        isSatisfied ? "Configuration satisfied" : "Configuration unsatisfied"
+        configuration?.isSatisfied ? "Configuration satisfied" : "Configuration unsatisfied"
       }}
     </div>
     <button
-      v-if="!isSatisfied"
-      class="configurationSatisfactionIndication-button"
-      @click="onExplain"
-    >
+        v-if="!configuration?.isSatisfied"
+        class="button"
+        @click="onExplain">
       Explain
-  </button>
-</div>
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import {useExplain} from '../utils/useAttributes';
+import {handleExplain} from '../utils/Explain';
+import {useConfigurationContext} from '../utils/contexts';
 
-import { useExplain } from '../utils/useAttributes';
-import { handleExplain } from '../utils/Explain';
-import { useConfigurationContext, useSessionContext } from '../utils/contexts';
-
-const  configuration  = useConfigurationContext();
-const session = useSessionContext();
-const { explain, applySolution } = useExplain();
-
-const isSatisfied = ref(configuration.value?.isSatisfied ?? false);
-
-watch(
-  () => session.value?.getConfiguration(), 
-  (newSession) => {
-    if (newSession) {
-      isSatisfied.value = newSession.isSatisfied;
-    }
-  },
-  { deep: true, immediate: true }
-);
+const configuration = useConfigurationContext();
+const {explain, applySolution} = useExplain();
 
 const onExplain = () => {
-  handleExplain(() => explain(b => b.whyIsNotSatisfied.configuration, 'full'), applySolution);
+  handleExplain(() => explain(b => b.whyIsNotSatisfied.configuration, "full"), applySolution);
 };
-
-
 
 </script>
 
 
-
 <style scoped>
-.configurationSatisfactionIndication-root {
+.configuration-satisfaction-indication {
   margin-bottom: 1em;
   display: grid;
   grid-template-rows: [text explain-button] auto;
@@ -68,11 +49,13 @@ const onExplain = () => {
     color: var(--color-satisfied);
   }
 }
-.configurationSatisfactionIndication-text {
+
+.text {
   grid-area: text;
   align-self: center;
 }
-.configurationSatisfactionIndication-button {
+
+.button {
   grid-area: explain-button;
 }
 </style>

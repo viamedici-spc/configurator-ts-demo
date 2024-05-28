@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import {ref, onMounted} from "vue";
 import {
   provideConfigurationContext,
   provideSessionContext,
@@ -29,7 +29,7 @@ onMounted(async () => {
     hcaEngineBaseUrl: config.hcaEngineEndpoint,
   });
 
-  
+
   session.value = await client.value.createSession({
     configurationModelSource: {
       type: ConfigurationModelSourceType.Channel,
@@ -51,34 +51,36 @@ provideSessionContext(session);
 </script>
 
 <template>
-  <div class="configurator-root">
-    <h1 class="configurator-header">Configurator Vue.js Demo</h1>
-      <template v-if="!isConfigured">
-        <span>Configuration loading …</span>
-      </template>
-      <template v-if="isConfigured">
-        <div>
-          <ConfigurationSatisfactionIndication  />
-          <div class="configurator-main">
-            <!-- <ErrorIndicator /> -->
-            <Attributes />
-          </div>
+  <div class="configurator">
+    <h1 class="header">Configurator Vue.js Demo</h1>
+    <template v-if="!isConfigured">
+      <span>Configuration loading …</span>
+    </template>
+    <template v-if="isConfigured">
+      <div>
+        <ConfigurationSatisfactionIndication/>
+        <div class="main">
+          <!-- <ErrorIndicator /> -->
+          <Attributes/>
         </div>
-      </template>
+      </div>
+    </template>
   </div>
 </template>
 
-<style>
-.configurator-root {
+<style scoped>
+.configurator {
   max-width: 1250px;
   flex-grow: 1;
 }
-.configurator-header {
+
+.header {
   display: grid;
   grid-template-columns: [title] 1fr auto;
   margin-top: 1em;
 }
-.configurator-main {
+
+.main {
   display: grid;
   grid-template-rows: [error-indicator attributes] auto;
   grid-template-columns: [error-indicator attributes] 1fr;

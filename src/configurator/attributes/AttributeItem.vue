@@ -36,7 +36,7 @@ import {
     attributeIdToString
 } from "../../utils/Naming";
 import {
-    useAttributes
+  useAttributes, useAttributesRef
 } from "../../utils/useAttributes";
 
 const activeAttributeContext = Symbol("activeAttributeContext");
@@ -82,9 +82,9 @@ export default defineComponent({
         attributeId: Object as PropType < GlobalAttributeId > ,
     },
     setup(props) {
-        const attributes = useAttributes([props.attributeId!], false);
+        const attributes = useAttributesRef([props.attributeId!], false);
 
-        const attribute = computed(() => attributes[0]);
+        const attribute = computed(() => attributes.value[0]);
 
         const isAttributeReady = ref(false);
 

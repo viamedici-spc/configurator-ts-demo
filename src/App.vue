@@ -11,13 +11,14 @@ export default {
 </script>
 
 <template>
-  <div class="root">
-    <Configurator />
+  <div class="app">
+    <Configurator/>
+    <div class="header"></div>
   </div>
 </template>
 
 <style scoped>
-.root {
+.app {
   height: 100vh;
   padding: 1em;
   display: flex;
