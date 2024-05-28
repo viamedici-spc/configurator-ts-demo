@@ -1,5 +1,5 @@
 <template>
-<div class="treeClearing-root">
+<div class="tree-clearing-root">
     <button @click="onClick">Clear Subtree</button>
 </div>
 </template>
@@ -23,7 +23,7 @@ const onClick = async () => {
 </script>
 
 <style scoped>
-.treeClearing-root{
+.tree-clearing-root{
     grid-area: label;
     display: flex;
     justify-content: end;

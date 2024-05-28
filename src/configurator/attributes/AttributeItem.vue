@@ -1,5 +1,5 @@
 <template>
-<div class="root">
+<div class="attribute-item-root">
     <div class="label">
         {{ attributeIdToString(attributeId!) }}
     </div>
@@ -36,7 +36,7 @@ import {
     attributeIdToString
 } from "../../utils/Naming";
 import {
-  useAttributes, useAttributesRef
+   useAttributesRef
 } from "../../utils/useAttributes";
 
 const activeAttributeContext = Symbol("activeAttributeContext");
@@ -111,7 +111,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.root {
+.attribute-item-root {
     display: grid;
     grid-template-columns: [label] 0.4fr 0.5em [selection] 0.6fr;
     grid-template-rows: [label selection] auto;

@@ -60,7 +60,6 @@ provideSessionContext(session);
       <div>
         <ConfigurationSatisfactionIndication/>
         <div class="main">
-          <!-- <ErrorIndicator /> -->
           <Attributes/>
         </div>
       </div>

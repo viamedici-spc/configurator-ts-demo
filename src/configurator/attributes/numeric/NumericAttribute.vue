@@ -1,5 +1,5 @@
 <template>
-<div class="numeric-root">
+<div class="numeric-attribute-root">
    <ValueSelection />
    <div class="indicators">
     <SatisfactionIndicator />
@@ -16,7 +16,7 @@ import ValueSelection from './ValueSelection.vue';
 </script>
 
 <style scoped>
-.numeric-root {
+.numeric-attribute-root {
     grid-area: selection;
     display: grid;
     grid-template-rows: [value-selection] auto [gap] 0.2em [indicators] auto;

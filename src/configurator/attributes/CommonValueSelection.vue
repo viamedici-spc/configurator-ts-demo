@@ -3,7 +3,7 @@
     :value="selectedValues"
     :multiple="isMultiselect"
     @change="handleChange"
-    class="root"
+    class="common-value-selection-root"
   >
     <option :value="nothingValue?.id">
       {{ nothingValue?.isImplicit ? "Implicit: " : "" }}
@@ -72,7 +72,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.root {
+.common-value-selection-root {
   grid-area: value-selection;
 }
 </style>

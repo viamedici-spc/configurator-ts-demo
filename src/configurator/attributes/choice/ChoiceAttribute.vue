@@ -1,6 +1,6 @@
 <template>
   <!-- <DecisionClearing /> -->
-    <div class="choiceAttribute-root">
+    <div class="choice-attribute-root">
       <ValueSelection />
       <div class="indicators">
         <SatisfactionIndicator />
@@ -29,7 +29,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.choiceAttribute-root {
+.choice-attribute-root {
   grid-area: selection;
   display: grid;
   grid-template-rows: [value-selection] auto [gap] 0.2em [indicators] auto;

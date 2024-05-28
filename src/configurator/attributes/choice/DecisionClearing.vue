@@ -1,5 +1,5 @@
 <template>
-    <div class="root">
+    <div class="decision-clearing-root">
         <button @click="onClick">Clear decisions</button>
     </div>
 </template>
@@ -19,7 +19,7 @@ import { useActiveAttribute } from '../AttributeItem.vue';
 </script>
 
 <style scoped>
-.root{
+.decision-clearing-root{
     grid-area: label;
     display: flex;
     justify-content: end;

@@ -1,6 +1,6 @@
 <template>
   <input
-    class="valueSelection-root"
+    class="value-selection-root"
     type="number"
     :step="Math.pow(0.1, attribute.decimalPlaces)"
     :min="attribute.range.min"
@@ -90,7 +90,7 @@ const handleKeydown = async (event: KeyboardEvent) => {
 </script>
 
 <style scoped>
-.valueSelection-root {
+.value-selection-root {
   grid-area: value-selection;
 }
 </style>

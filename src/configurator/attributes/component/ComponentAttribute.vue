@@ -1,8 +1,8 @@
 <template>
   <TreeClearing />
-  <div class="componentAttribute-root">
+  <div class="component-attribute-root">
     <ValueSelection />
-    <div class="indicators-root"><SatisfactionIndicator /></div>
+    <div class="indicators"><SatisfactionIndicator /></div>
   </div>
 </template>
 
@@ -13,13 +13,13 @@ import ValueSelection from "./ValueSelection.vue";
 </script>
 
 <style scoped>
-.componentAttribute-root {
+.component-attribute-root {
   grid-area: selection;
   display: grid;
   grid-template-rows: [value-selection] auto [gap] 0.2em [indicators] auto;
   grid-template-columns: [value-selection indicators] 1fr;
 }
-.indicators-root {
+.indicators {
   grid-area: indicators;
   font-size: 0.8em;
 }

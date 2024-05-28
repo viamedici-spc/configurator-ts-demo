@@ -1,6 +1,6 @@
 <template>
   <span>.</span>
-  <span class="span-range">
+  <span>
     {{ `range [${attribute.range.min}; ${attribute.range.max}]` }}</span
   >
   <span>.</span>
