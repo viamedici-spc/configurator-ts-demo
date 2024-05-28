@@ -37,8 +37,8 @@ const activeAttribute = useActiveAttribute();
         if (valueId === nothingValueId) {
             if (attribute.decision?.kind === DecisionKind.Explicit) {
                 console.info("Reset decision for %s", attributeIdToString(attribute.id));
-                await handleDecisionResponse(() => makeDecision(null));
-                store.commit("setRerender");
+                await handleDecisionResponse(() => makeDecision(null)).finally(()=>store.commit("setRerender"));
+                
             }
         } else {
             const state = valueId === includedValueId ? ComponentDecisionState.Included : ComponentDecisionState.Excluded;

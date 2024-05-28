@@ -72,8 +72,8 @@ const onChange = async (value: string | string[]) => {
         );
         await handleDecisionResponse(() =>
           makeDecision(selectedChoiceValueId, null)
-        );
-        callStore();
+        ).finally(()=>store.commit("setRerender"));
+        
       } else if (selectedChoiceValueIds.length > 1) {
         console.info(
           "Reset all decisions for %s",
