@@ -18,13 +18,13 @@
   import { defineComponent, computed } from 'vue';
   import { useActiveAttribute } from '../AttributeItem.vue';
   import { AttributeInterpreter } from '@viamedici-spc/configurator-ts';
-  import {useChoiceAttribute, useChoiceAttributeRef} from '../../../utils/useAttributes';
+  import { useChoiceAttributeRef} from '../../../utils/useAttributes';
 
   export default defineComponent({
     name: 'Indicators',
     setup() {
       const activeAttribute = useActiveAttribute();
-      const choiceAttribute = useChoiceAttributeRef(activeAttribute!);
+      const choiceAttribute = useChoiceAttributeRef(activeAttribute!.value);
 
       const attribute = computed(() => choiceAttribute?.value?.attribute);
 

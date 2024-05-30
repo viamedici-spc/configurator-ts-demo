@@ -10,7 +10,7 @@ import { useAttributes, useExplain } from '../../utils/useAttributes';
 import { useActiveAttribute } from './AttributeItem.vue';
 import { handleExplain } from '../../utils/Explain';
 const activeAttribute = useActiveAttribute();
-    const [attribute] = useAttributes([activeAttribute!]);
+    const [attribute] = useAttributes([activeAttribute!.value]);
     const {explain, applySolution} = useExplain();
 
 const onExplain = () => {

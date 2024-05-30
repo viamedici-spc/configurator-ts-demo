@@ -30,8 +30,9 @@ const trueValueId = "true";
 const falseValueId = "false";
 
 const activeAttribute = useActiveAttribute();
+
 const { attribute, makeDecision, explain, applySolution } = useBooleanAttribute(
-  activeAttribute!
+  activeAttribute!.value
 );
 
 const onChange = async (valueId: string | string[]) => {
