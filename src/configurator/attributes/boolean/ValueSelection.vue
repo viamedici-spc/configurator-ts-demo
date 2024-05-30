@@ -18,6 +18,7 @@ import { useBooleanAttributeRef } from "../../../utils/useAttributes";
 import {
   AttributeInterpreter,
   DecisionKind,
+  ExplainQuestionSubject,
   ExplainQuestionType,
 } from "@viamedici-spc/configurator-ts";
 import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
@@ -59,7 +60,7 @@ const onChange = async (valueId: string | string[]) => {
         value.toString()
       );
 
-      // handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, state: state}, "full"), applySolution);
+      handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, state: value, subject:ExplainQuestionSubject.boolean,attributeId:activeAttribute?.value!}, "full"), applySolution);
     }
   }
 };
