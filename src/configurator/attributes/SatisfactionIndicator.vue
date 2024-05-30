@@ -1,22 +1,37 @@
 <template>
-  <span :style="{color: color }">
- {{ attribute.isSatisfied ? 'satisfied' : 'unsatisfied' }}
+  <span :style="{ color: color }">
+    {{ attribute.isSatisfied ? "satisfied" : "unsatisfied" }}
   </span>
- <button v-if="!attribute.isSatisfied" @click="onExplain">Explain</button>
+  <button v-if="!attribute.isSatisfied" @click="onExplain">Explain</button>
 </template>
 
 <script setup lang="ts">
-import { useAttributes, useExplain } from '../../utils/useAttributes';
-import { useActiveAttribute } from './AttributeItem.vue';
-import { handleExplain } from '../../utils/Explain';
+import { useAttributesRef, useExplain } from "../../utils/useAttributes";
+import { useActiveAttribute } from "./AttributeItem.vue";
+import { handleExplain } from "../../utils/Explain";
+import { computed } from "vue";
 const activeAttribute = useActiveAttribute();
-    const [attribute] = useAttributes([activeAttribute!.value]);
-    const {explain, applySolution} = useExplain();
+
+const attributes = useAttributesRef([activeAttribute!.value]);
+
+const attribute = computed(() => attributes.value[0]);
+
+const { explain, applySolution } = useExplain();
 
 const onExplain = () => {
-    handleExplain(()=> explain(b=> b.whyIsNotSatisfied.attribute(attribute?.id), "full"), applySolution)
-}
+  handleExplain(
+    () =>
+      explain(
+        (b) => b.whyIsNotSatisfied.attribute(attribute.value?.id),
+        "full"
+      ),
+    applySolution
+  );
+};
 
-const color = attribute.isSatisfied? "var(--color-satisfied)" : "var(--color-unsatisfied)";
-
+const color = computed(() =>
+  attribute.value && attribute.value.isSatisfied
+    ? "var(--color-satisfied)"
+    : "var(--color-unsatisfied)"
+);
 </script>
