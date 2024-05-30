@@ -143,8 +143,9 @@ export function useChoiceAttribute(attributeId: GlobalAttributeId): UseChoiceAtt
 }
 
 export function useChoiceAttributeRef(attributeId: GlobalAttributeId): ComputedRef<UseChoiceAttributeResult> {
+    
     const configuration = useConfigurationContext();
-    const session = ref(useSessionContext());
+    const session = useSessionContext();
     const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
     const setManyDecision = (d: ReadonlyArray<ExplicitDecision>, m: SetManyMode) => session.value?.setMany(d, m);
     const attributeExplainResult = useAttributeExplain<WhyIsChoiceValueStateNotPossible>(attributeId, ExplainQuestionSubject.choiceValue);
@@ -154,8 +155,10 @@ export function useChoiceAttributeRef(attributeId: GlobalAttributeId): ComputedR
     }
 
     const result = computed(() => {
+        // Configuration is already a reactive object so we don't need to make a ref to "attribute".
         const attribute = ConfigurationInterpreter.getChoiceAttribute(configuration.value!, attributeId);
         if (!attribute) return undefined;
+        
         return {
             makeDecision: async (ChoiceValueId: ChoiceValueId, state: ChoiceValueDecisionState | null | undefined) => {
                 await makeDecision({
@@ -176,7 +179,7 @@ export function useChoiceAttributeRef(attributeId: GlobalAttributeId): ComputedR
         };
     });
 
-    return result as any;
+    return result as ComputedRef<UseChoiceAttributeResult>;
 
 }
 
