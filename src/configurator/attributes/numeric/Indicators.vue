@@ -14,7 +14,7 @@ import { useActiveAttribute } from "../AttributeItem.vue";
 import { useNumericAttribute } from "../../../utils/useAttributes";
 
 const activeAttribute = useActiveAttribute();
-const { attribute } = useNumericAttribute(activeAttribute!);
+const { attribute } = useNumericAttribute(activeAttribute!.value);
 </script>
 
 <style scoped>
