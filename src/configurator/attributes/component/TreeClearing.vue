@@ -8,16 +8,13 @@
 import { useActiveAttribute } from '../AttributeItem.vue';
 import { useComponentAttribute } from "../../../utils/useAttributes";
 import { handleError } from '../../../utils/PromiseErrorHandling';
-import { useStore } from 'vuex';
 
-const store = useStore();
 
 const activeAttribute = useActiveAttribute();
-const {clearSubtree} = useComponentAttribute(activeAttribute!);
+const {clearSubtree} = useComponentAttribute(activeAttribute!.value);
 
 const onClick = async () => {
  await handleError(() => clearSubtree());
- store.commit("setRerender");
 }
 
 </script>
