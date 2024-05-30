@@ -11,13 +11,9 @@
   "dependencies": {
     "@viamedici-spc/configurator-react": "^1.0.0",
     "@viamedici-spc/configurator-ts": "^1.2.0",
-    "@xstate/react": "^3.2.2",
-    "install": "^0.13.0",
     "npm": "^10.8.0",
     "ts-pattern": "^5.1.1",
-    "vue": "^3.4.21",
-    "vuex": "^4.0.2",
-    "xstate": "^4.38.3"
+    "vue": "^3.4.21"
   },
   "devDependencies": {
     "@types/react": "^18.3.2",
@@ -25,7 +21,6 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/cli-plugin-typescript": "^5.0.8",
     "typescript": "^5.2.2",
-    "vite": "^5.2.0",
-    "vue-tsc": "^2.0.6"
+    "vite": "^5.2.0"
   }
 }
