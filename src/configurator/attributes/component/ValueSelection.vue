@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import {useActiveAttribute} from "../AttributeItem.vue";
-import { useComponentAttribute } from "../../../utils/useAttributes";
+import { useComponentAttributeRef } from "../../../utils/useAttributes";
 import {AttributeInterpreter, ComponentDecisionState, DecisionKind, ExplainQuestionSubject, ExplainQuestionType} from "@viamedici-spc/configurator-ts";
 import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
 import { attributeIdToString } from "../../../utils/Naming";
@@ -29,7 +29,7 @@ const includedValueId = "included";
 const excludedValueId = "excluded";
 
 const activeAttribute = useActiveAttribute();
-    const {attribute, makeDecision, explain, applySolution} = useComponentAttribute(activeAttribute!.value);
+    const {attribute, makeDecision, explain, applySolution} = useComponentAttributeRef(activeAttribute!.value).value;
 
     const onChange = async (valueId: string | string[]) => {
         if (valueId === nothingValueId) {

@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { useActiveAttribute } from "../AttributeItem.vue";
-import { useBooleanAttribute } from "../../../utils/useAttributes";
+import { useBooleanAttributeRef } from "../../../utils/useAttributes";
 import {
   AttributeInterpreter,
   DecisionKind,
@@ -31,9 +31,9 @@ const falseValueId = "false";
 
 const activeAttribute = useActiveAttribute();
 
-const { attribute, makeDecision, explain, applySolution } = useBooleanAttribute(
+const { attribute, makeDecision, explain, applySolution } = useBooleanAttributeRef(
   activeAttribute!.value
-);
+).value;
 
 const onChange = async (valueId: string | string[]) => {
   if (valueId === nothingValueId) {

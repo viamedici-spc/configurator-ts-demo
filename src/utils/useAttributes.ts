@@ -37,7 +37,6 @@ import {getChoiceAttributeResetDecisions} from '../internal/attributeHelper';
 import {match} from 'ts-pattern';
 import {useSessionContext} from './contexts';
 import {getComponentSubtreeResetDecisions} from '../internal/attributeHelper';
-import { RefSymbol } from '@vue/reactivity';
 
 function throwIfConfigurationIsNull(configuration: any) {
     if (configuration === null || configuration === undefined) {
@@ -106,9 +105,8 @@ export function useChoiceAttributeRef(attributeId: GlobalAttributeId): ComputedR
     const setManyDecision = (d: ReadonlyArray<ExplicitDecision>, m: SetManyMode) => session.value?.setMany(d, m);
     const attributeExplainResult = useAttributeExplain<WhyIsChoiceValueStateNotPossible>(attributeId, ExplainQuestionSubject.choiceValue);
 
-    if (configuration === null || configuration === undefined) {
-        throw new Error('Configuration is null or undefined');
-    }
+    throwIfConfigurationIsNull(configuration);
+
 
     const result = computed(() => {
         // Configuration is already a reactive object so we don't need to make a ref to "attribute".
@@ -141,6 +139,7 @@ export function useChoiceAttributeRef(attributeId: GlobalAttributeId): ComputedR
 
 
 export function useExplain(): UseExplainResult {
+
     const configurationSession = useSessionContext();
     if (!configurationSession) throw new Error("Connfiguration Session is not ready for use!");
 
@@ -201,21 +200,24 @@ type UseComponentAttributeResult = UseAttributeExplainResult<WhyIsComponentState
     clearSubtree: () => Promise<void>
 };
 
-export function useComponentAttribute(attributeId: GlobalAttributeId): UseComponentAttributeResult {
+
+export function useComponentAttributeRef(attributeId: GlobalAttributeId): ComputedRef<UseComponentAttributeResult> {
+
     const configuration = useConfigurationContext();
     const session = ref(useSessionContext());
     const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
     const setManyDecision = (d: ReadonlyArray<ExplicitDecision>, m: SetManyMode) => session.value?.setMany(d, m);
-
     const attributeExplainResult = useAttributeExplain<WhyIsComponentStateNotPossible>(attributeId, ExplainQuestionSubject.component);
 
     throwIfConfigurationIsNull(configuration);
 
     const attributes = configuration.value?.attributes;
 
-    const attribute = ConfigurationInterpreter.getComponentAttribute(configuration.value!, attributeId);
-
     const results = computed(() => {
+
+        const attribute = ConfigurationInterpreter.getComponentAttribute(configuration.value!, attributeId);
+        if (!attribute) return undefined;
+
         return {
             makeDecision: async (state: ComponentDecisionState | null | undefined) => await makeDecision({
                 type: AttributeType.Component,
@@ -233,13 +235,9 @@ export function useComponentAttribute(attributeId: GlobalAttributeId): UseCompon
             ...attributeExplainResult
         }
     })
-    watchEffect(() => {
-        if (!attribute) {
-            return undefined;
-        }
-    });
 
-    return results.value!;
+
+    return results as ComputedRef<UseComponentAttributeResult>;
 }
 
 export type UseBooleanAttributeResult = UseAttributeExplainResult<WhyIsBooleanStateNotPossible> & {
@@ -247,7 +245,8 @@ export type UseBooleanAttributeResult = UseAttributeExplainResult<WhyIsBooleanSt
     makeDecision: (state: boolean | null | undefined) => Promise<void>
 };
 
-export function useBooleanAttribute(attributeId: GlobalAttributeId): UseBooleanAttributeResult {
+export function useBooleanAttributeRef(attributeId: GlobalAttributeId): ComputedRef<UseBooleanAttributeResult> {
+
     const configuration = useConfigurationContext();
     const session = ref(useSessionContext());
     const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
@@ -256,9 +255,9 @@ export function useBooleanAttribute(attributeId: GlobalAttributeId): UseBooleanA
 
     throwIfConfigurationIsNull(configuration);
 
-    const attribute = ConfigurationInterpreter.getBooleanAttribute(configuration.value!, attributeId);
-
     const results = computed(() => {
+        const attribute = ConfigurationInterpreter.getBooleanAttribute(configuration.value!, attributeId);
+        if(!attribute) return undefined;
         return {
             makeDecision: async (state: boolean | null | undefined) => makeDecision({
                 type: AttributeType.Boolean,
@@ -270,14 +269,7 @@ export function useBooleanAttribute(attributeId: GlobalAttributeId): UseBooleanA
         }
     });
 
-
-    watchEffect(() => {
-        if (!attribute) {
-            return undefined;
-        }
-    });
-
-    return results.value!;
+    return results as ComputedRef<UseBooleanAttributeResult>;
 }
 
 
@@ -287,9 +279,11 @@ export type UseNumericAttributeResult = UseAttributeExplainResult<WhyIsNumericSt
 
 };
 
-export function useNumericAttribute(attributeId: GlobalAttributeId): UseNumericAttributeResult {
+export function useNumericAttributeRef(attributeId: GlobalAttributeId): ComputedRef<UseNumericAttributeResult> {
+
     const configuration = useConfigurationContext();
-    const session = ref(useSessionContext());
+    const session = useSessionContext();
+
     const makeDecision = async (state: number | null | undefined) => {
         if (state !== null && state !== undefined) {
             await session.value?.makeDecision({
@@ -299,26 +293,22 @@ export function useNumericAttribute(attributeId: GlobalAttributeId): UseNumericA
             } as ExplicitNumericDecision);
         }
     };
+
     const attributeExplainResult = useAttributeExplain<WhyIsNumericStateNotPossible>(attributeId, ExplainQuestionSubject.numeric);
 
     throwIfConfigurationIsNull(configuration);
 
-    const attribute = ConfigurationInterpreter.getNumericAttribute(configuration.value!, attributeId);
-
     const results = computed(() => {
+
+        const attribute = ConfigurationInterpreter.getNumericAttribute(configuration.value!, attributeId);
+        if(!attribute) return undefined;
+
         return {
             makeDecision: makeDecision,
-            attribute: attribute!,
+            attribute: attribute,
             ...attributeExplainResult
         }
     });
 
-
-    watchEffect(() => {
-        if (!attribute) {
-            return undefined;
-        }
-    });
-
-    return results.value!
+    return results as ComputedRef<UseNumericAttributeResult>;
 }

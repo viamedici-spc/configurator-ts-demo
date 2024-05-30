@@ -1,20 +1,24 @@
 <template>
   <span>.</span>
   <span>
-    {{ `range [${attribute.range.min}; ${attribute.range.max}]` }}</span
+    {{ `range [${result.attribute.range.min}; ${result.attribute.range.max}]` }}</span
   >
   <span>.</span>
   <span class="span-decimal">
-    {{ attribute.decimalPlaces }} decimal places.
+    {{ result.attribute.decimalPlaces }} decimal places.
   </span>
 </template>
 
 <script setup lang="ts">
+
 import { useActiveAttribute } from "../AttributeItem.vue";
-import { useNumericAttribute } from "../../../utils/useAttributes";
+import { useNumericAttributeRef } from "../../../utils/useAttributes";
 
 const activeAttribute = useActiveAttribute();
-const { attribute } = useNumericAttribute(activeAttribute!.value);
+if(!activeAttribute) throw new Error("Active Attribute is undefined in Numeric Component");
+
+
+const result = useNumericAttributeRef(activeAttribute.value)
 </script>
 
 <style scoped>

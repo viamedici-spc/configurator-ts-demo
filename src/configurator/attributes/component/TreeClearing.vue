@@ -6,12 +6,12 @@
 
 <script setup lang="ts">
 import { useActiveAttribute } from '../AttributeItem.vue';
-import { useComponentAttribute } from "../../../utils/useAttributes";
+import { useComponentAttributeRef } from "../../../utils/useAttributes";
 import { handleError } from '../../../utils/PromiseErrorHandling';
 
 
 const activeAttribute = useActiveAttribute();
-const {clearSubtree} = useComponentAttribute(activeAttribute!.value);
+const {clearSubtree} = useComponentAttributeRef(activeAttribute!.value).value;
 
 const onClick = async () => {
  await handleError(() => clearSubtree());
