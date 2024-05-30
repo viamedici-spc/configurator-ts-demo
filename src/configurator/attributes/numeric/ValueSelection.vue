@@ -29,6 +29,8 @@ import {
 const activeAttribute = useActiveAttribute();
 const result = useNumericAttributeRef(activeAttribute!.value);
 
+const {attribute, makeDecision, explain, applySolution} = result.value;
+
 const pendingValue = ref<number | undefined | null>(null);
 
 const onChange = (event: Event) => {
@@ -40,22 +42,22 @@ const applyPendingValue = async () => {
   if (pendingValue.value === null || pendingValue.value === undefined) {
     return;
   }
-  const precision = Math.pow(10, result.value.attribute.decimalPlaces);
+  const precision = Math.pow(10, attribute.decimalPlaces);
   const round = (value: number) => Math.round((value + Number.EPSILON) * precision) / precision;
   const roundedValue = pendingValue.value !== undefined ? round(pendingValue.value) : pendingValue.value;
 
   pendingValue.value = null;
-  console.info("Make decision for %s: %s", attributeIdToString(result.value.attribute.id), roundedValue !== undefined ? roundedValue.toString() : "Undefined");
+  console.info("Make decision for %s: %s", attributeIdToString(attribute.id), roundedValue !== undefined ? roundedValue.toString() : "Undefined");
 
   await handleDecisionResponse(
-    () => result.value.makeDecision(roundedValue),
+    () => makeDecision(roundedValue),
     (e) => {
       if (
         e.type === FailureType.ConfigurationModelNotFeasible ||
         e.type === FailureType.ConfigurationConflict
       ) {
         return () => handleExplain(
-          () => result.value.explain(
+          () => explain(
             {
               question: ExplainQuestionType.whyIsStateNotPossible,
               state: roundedValue!,
@@ -64,7 +66,7 @@ const applyPendingValue = async () => {
             },
             "full"
           ),
-          result.value.applySolution
+          applySolution
         );
       }
       return null;
@@ -75,7 +77,7 @@ const applyPendingValue = async () => {
 const inputValue = computed(() => {
   return pendingValue.value !== null
     ? pendingValue.value ?? ""
-    : result.value.attribute.decision?.state ?? "";
+    : attribute.decision?.state ?? "";
 });
 
 const handleKeydown = async (event: KeyboardEvent) => {

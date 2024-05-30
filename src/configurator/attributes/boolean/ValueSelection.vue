@@ -31,9 +31,9 @@ const falseValueId = "false";
 
 const activeAttribute = useActiveAttribute();
 
-const { attribute, makeDecision, explain, applySolution } = useBooleanAttributeRef(
-  activeAttribute!.value
-).value;
+const result = useBooleanAttributeRef(activeAttribute!.value);
+
+const { attribute, makeDecision, explain, applySolution } = result.value!
 
 const onChange = async (valueId: string | string[]) => {
   if (valueId === nothingValueId) {

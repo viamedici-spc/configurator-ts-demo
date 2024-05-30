@@ -29,7 +29,10 @@ const includedValueId = "included";
 const excludedValueId = "excluded";
 
 const activeAttribute = useActiveAttribute();
-    const {attribute, makeDecision, explain, applySolution} = useComponentAttributeRef(activeAttribute!.value).value;
+
+    const result = useComponentAttributeRef(activeAttribute!.value);
+
+    const {attribute, makeDecision, explain, applySolution} = result.value;
 
     const onChange = async (valueId: string | string[]) => {
         if (valueId === nothingValueId) {
