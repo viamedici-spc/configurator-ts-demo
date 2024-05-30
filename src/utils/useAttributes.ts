@@ -1,4 +1,4 @@
-import {ComputedRef, computed, ref, watchEffect} from 'vue';
+import {ComputedRef, computed, ref} from 'vue';
 import {useConfigurationContext} from "./contexts";
 import {
     Attribute,

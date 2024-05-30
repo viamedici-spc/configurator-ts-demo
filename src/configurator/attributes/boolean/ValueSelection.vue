@@ -13,9 +13,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useActiveAttribute } from "../AttributeItem.vue";
-import { useBooleanAttributeRef } from "../../../utils/useAttributes";
+import { useBooleanAttributeRef } from '../../../utils/useAttributes';
 import {
   AttributeInterpreter,
   DecisionKind,
@@ -38,38 +38,39 @@ if (!activeAttribute) {
 }
 
 const result = useBooleanAttributeRef(activeAttribute.value);
+const attribute = computed(() => result.value.attribute);
 
-const { attribute, makeDecision, explain, applySolution } = result.value;
+const { makeDecision, explain, applySolution } = result.value;
 
 const selectedValue = computed(() =>
-  attribute.decision?.state === true
+  attribute.value.decision?.state === true
     ? trueValueId
-    : attribute.decision?.state === false
+    : attribute.value.decision?.state === false
     ? falseValueId
     : nothingValueId
 );
 
 const isTrueValuePossible = computed(() =>
-  AttributeInterpreter.isBooleanValuePossible(attribute, true)
+  AttributeInterpreter.isBooleanValuePossible(attribute.value, true)
 );
 const isFalseValuePossible = computed(() =>
-  AttributeInterpreter.isBooleanValuePossible(attribute, false)
+  AttributeInterpreter.isBooleanValuePossible(attribute.value, false)
 );
 
 const falseValue = computed(() => ({
   id: falseValueId,
   name: "no",
   isImplicit:
-    attribute.decision?.state === false &&
-    attribute.decision?.kind === DecisionKind.Implicit,
+    attribute.value.decision?.state === false &&
+    attribute.value.decision?.kind === DecisionKind.Implicit,
 }));
 
 const trueValue = computed(() => ({
   id: trueValueId,
   name: "yes",
   isImplicit:
-    attribute.decision?.state === true &&
-    attribute.decision?.kind === DecisionKind.Implicit,
+    attribute.value.decision?.state === true &&
+    attribute.value.decision?.kind === DecisionKind.Implicit,
 }));
 
 const allowedValues = computed(() =>
@@ -88,17 +89,17 @@ const blockedValues = computed(() =>
 
 const onChange = async (valueId: string | string[]) => {
   if (valueId === nothingValueId) {
-    if (attribute.decision?.kind === DecisionKind.Explicit) {
-      console.info("Reset decision for %s", attributeIdToString(attribute.id));
+    if (attribute.value.decision?.kind === DecisionKind.Explicit) {
+      console.info("Reset decision for %s", attributeIdToString(attribute.value.id));
       await handleDecisionResponse(() => makeDecision(null));
     }
   } else {
     const value = valueId === trueValueId;
 
-    if (AttributeInterpreter.isBooleanValuePossible(attribute, value)) {
+    if (AttributeInterpreter.isBooleanValuePossible(attribute.value, value)) {
       console.info(
         "Make decision for %s: %s",
-        attributeIdToString(attribute.id),
+        attributeIdToString(attribute.value.id),
         value.toString()
       );
 
@@ -106,7 +107,7 @@ const onChange = async (valueId: string | string[]) => {
     } else {
       console.info(
         "Explain blocked value for %s: %s",
-        attributeIdToString(attribute.id),
+        attributeIdToString(attribute.value.id),
         value.toString()
       );
 

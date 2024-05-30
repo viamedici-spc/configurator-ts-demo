@@ -46,7 +46,7 @@ const attribute = computed(() => result.value.attribute);
 const { clearDecisions, makeDecision, applySolution, explain } = result.value;
 
 const allowedChoiceValues = computed(() =>
-  AttributeInterpreter.getAllowedChoiceValues(result.value.attribute).map(
+  AttributeInterpreter.getAllowedChoiceValues(attribute.value).map(
     (v) =>
       ({
         id: v.id,

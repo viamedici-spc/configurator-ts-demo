@@ -21,6 +21,7 @@ import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
 import { attributeIdToString } from "../../../utils/Naming";
 import CommonValueSelection, {Value} from "../CommonValueSelection.vue";
 import { handleExplain } from "../../../utils/Explain";
+import { computed } from "vue";
 
 
 
@@ -31,57 +32,59 @@ const excludedValueId = "excluded";
 const activeAttribute = useActiveAttribute();
 
     const result = useComponentAttributeRef(activeAttribute!.value);
-
-    const {attribute, makeDecision, explain, applySolution} = result.value;
+    const attribute = computed(()=>result.value.attribute);
+    const { makeDecision, explain, applySolution} = result.value;
 
     const onChange = async (valueId: string | string[]) => {
         if (valueId === nothingValueId) {
-            if (attribute.decision?.kind === DecisionKind.Explicit) {
-                console.info("Reset decision for %s", attributeIdToString(attribute.id));
+            if (attribute.value.decision?.kind === DecisionKind.Explicit) {
+                console.info("Reset decision for %s", attributeIdToString(attribute.value.id));
                 await handleDecisionResponse(() => makeDecision(null));
                 
             }
         } else {
             const state = valueId === includedValueId ? ComponentDecisionState.Included : ComponentDecisionState.Excluded;
 
-            if (AttributeInterpreter.isComponentStatePossible(attribute, state)) {
-                console.info("Make decision for %s: %s", attributeIdToString(attribute.id), state.toString());
+            if (AttributeInterpreter.isComponentStatePossible(attribute.value, state)) {
+                console.info("Make decision for %s: %s", attributeIdToString(attribute.value.id), state.toString());
 
                 await handleDecisionResponse(() => makeDecision(state));
             } else {
-                console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), state.toString());
+                console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.value.id), state.toString());
 
                 await handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, state: state, subject: ExplainQuestionSubject.component, attributeId:activeAttribute!.value}, "full"), applySolution);
             }
         }
     };
 
-    const selectedValue = attribute.decision?.state === ComponentDecisionState.Included
+    const selectedValue = computed(()=>attribute.value.decision?.state === ComponentDecisionState.Included
         ? includedValueId
-        : attribute.decision?.state === ComponentDecisionState.Excluded
+        : attribute.value.decision?.state === ComponentDecisionState.Excluded
             ? excludedValueId
-            : nothingValueId;
+            : nothingValueId);
 
-    const isIncludedStatePossible = AttributeInterpreter.isComponentStatePossible(attribute, ComponentDecisionState.Included);
-    const isExcludedStatePossible = AttributeInterpreter.isComponentStatePossible(attribute, ComponentDecisionState.Excluded);
+    const isIncludedStatePossible = computed(()=>AttributeInterpreter.isComponentStatePossible(attribute.value, ComponentDecisionState.Included));
+    const isExcludedStatePossible = computed(()=>AttributeInterpreter.isComponentStatePossible(attribute.value, ComponentDecisionState.Excluded));
 
     const excludedValue: Value<string> = {
         id: excludedValueId,
         name: "excluded",
-        isImplicit: attribute.decision?.state === ComponentDecisionState.Excluded && attribute.decision?.kind === DecisionKind.Implicit
+        isImplicit: attribute.value.decision?.state === ComponentDecisionState.Excluded && attribute.value.decision?.kind === DecisionKind.Implicit
     };
     const includedValue: Value<string> = {
         id: includedValueId,
         name: "included",
-        isImplicit: attribute.decision?.state === ComponentDecisionState.Included && attribute.decision?.kind === DecisionKind.Implicit
+        isImplicit: attribute.value.decision?.state === ComponentDecisionState.Included && attribute.value.decision?.kind === DecisionKind.Implicit
     };
-    const allowedValues = [
+    const allowedValues = computed(()=>[
   isExcludedStatePossible && excludedValue,
   isIncludedStatePossible && includedValue
-].filter(Boolean) as Value<string>[];  // Filter out false values
+].filter(Boolean) as Value<string>[]);  // Filter out false values
 
-const blockedValues = [
-  (!isExcludedStatePossible) && excludedValue,
-  (!isIncludedStatePossible) && includedValue
-].filter(Boolean) as Value<string>[];
+const blockedValues = computed(()=>
+[
+  (!isExcludedStatePossible.value) && excludedValue,
+  (!isIncludedStatePossible.value) && includedValue
+].filter(Boolean) as Value<string>[])
+;
 </script>
