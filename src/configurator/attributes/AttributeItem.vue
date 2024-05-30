@@ -27,6 +27,7 @@ import {
     provide,
     ref,
     watch,
+    Ref,
 } from "vue";
 import ComponentAttribute from "./component/ComponentAttribute.vue";
 import ChoiceAttribute from "./choice/ChoiceAttribute.vue";
@@ -40,9 +41,9 @@ import {
 } from "../../utils/useAttributes";
 
 const activeAttributeContext = Symbol("activeAttributeContext");
-
-export const useActiveAttribute = () => {
-    return inject(activeAttributeContext, null);
+ 
+export const useActiveAttribute = (): Ref<GlobalAttributeId> | null => {
+    return inject<Ref<GlobalAttributeId> | null>(activeAttributeContext, null);
 };
 
 const AttributeTypeSelector = defineComponent({
@@ -82,13 +83,18 @@ export default defineComponent({
         attributeId: Object as PropType < GlobalAttributeId > ,
     },
     setup(props) {
-        const attributes = useAttributesRef([props.attributeId!], false);
+        
+        // attributeId of each AttributeItem should be reactive so that we can inject it in any function that is of type ComputedRef
+        const attributeId= ref(props.attributeId);
+
+        const attributes = useAttributesRef([attributeId.value!], false);
 
         const attribute = computed(() => attributes.value[0]);
 
         const isAttributeReady = ref(false);
 
-        provide(activeAttributeContext, props.attributeId);
+        provide(activeAttributeContext, attributeId);
+
 
         watch(
             attribute,
