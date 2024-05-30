@@ -46,8 +46,6 @@ export default defineComponent({
   },
   setup(props, { emit }) {
 
-    const allowedValues = props.allowedValues!.filter(Boolean);
-    const blockedValues = props.blockedValues!.filter(Boolean);
     
     const handleChange = (event: Event) => {
       const target = event.target as HTMLSelectElement;
@@ -63,9 +61,6 @@ export default defineComponent({
 
     return {
       handleChange,
-      allowedValues,
-      blockedValues,
-
     };
   }
 });
