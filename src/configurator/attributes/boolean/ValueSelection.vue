@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useActiveAttribute } from "../AttributeItem.vue";
 import { useBooleanAttributeRef } from "../../../utils/useAttributes";
 import {
@@ -23,8 +24,8 @@ import {
 } from "@viamedici-spc/configurator-ts";
 import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
 import { attributeIdToString } from "../../../utils/Naming";
-import CommonValueSelection, { Value } from "../CommonValueSelection.vue";
 import { handleExplain } from "../../../utils/Explain";
+import CommonValueSelection, { Value } from "../CommonValueSelection.vue";
 
 const nothingValueId = "<nothing>";
 const trueValueId = "true";
@@ -32,9 +33,58 @@ const falseValueId = "false";
 
 const activeAttribute = useActiveAttribute();
 
-const result = useBooleanAttributeRef(activeAttribute!.value);
+if (!activeAttribute) {
+  throw new Error("activeAttribute is null!");
+}
 
-const { attribute, makeDecision, explain, applySolution } = result.value!
+const result = useBooleanAttributeRef(activeAttribute.value);
+
+const { attribute, makeDecision, explain, applySolution } = result.value;
+
+const selectedValue = computed(() =>
+  attribute.decision?.state === true
+    ? trueValueId
+    : attribute.decision?.state === false
+    ? falseValueId
+    : nothingValueId
+);
+
+const isTrueValuePossible = computed(() =>
+  AttributeInterpreter.isBooleanValuePossible(attribute, true)
+);
+const isFalseValuePossible = computed(() =>
+  AttributeInterpreter.isBooleanValuePossible(attribute, false)
+);
+
+const falseValue = computed(() => ({
+  id: falseValueId,
+  name: "no",
+  isImplicit:
+    attribute.decision?.state === false &&
+    attribute.decision?.kind === DecisionKind.Implicit,
+}));
+
+const trueValue = computed(() => ({
+  id: trueValueId,
+  name: "yes",
+  isImplicit:
+    attribute.decision?.state === true &&
+    attribute.decision?.kind === DecisionKind.Implicit,
+}));
+
+const allowedValues = computed(() =>
+  [
+    isFalseValuePossible.value && falseValue.value,
+    isTrueValuePossible.value && trueValue.value,
+  ].filter(Boolean) as Value<string>[]
+);
+
+const blockedValues = computed(() =>
+  [
+    !isFalseValuePossible.value && falseValue.value,
+    !isTrueValuePossible.value && trueValue.value,
+  ].filter(Boolean) as Value<string>[]
+);
 
 const onChange = async (valueId: string | string[]) => {
   if (valueId === nothingValueId) {
@@ -60,35 +110,15 @@ const onChange = async (valueId: string | string[]) => {
         value.toString()
       );
 
-      handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, state: value, subject:ExplainQuestionSubject.boolean,attributeId:activeAttribute?.value!}, "full"), applySolution);
+      handleExplain(() =>
+        explain({
+          question: ExplainQuestionType.whyIsStateNotPossible,
+          state: value,
+          subject: ExplainQuestionSubject.boolean,
+          attributeId: activeAttribute.value,
+        }, "full"), applySolution);
     }
   }
 };
-
-const selectedValue = attribute.decision?.state === true
-        ? trueValueId
-        : attribute.decision?.state === false
-            ? falseValueId
-            : nothingValueId;
-
-    const isTrueValuePossible = AttributeInterpreter.isBooleanValuePossible(attribute, true);
-    const isFalseValuePossible = AttributeInterpreter.isBooleanValuePossible(attribute, false);
-    const falseValue: Value<string> = {
-        id: falseValueId,
-        name: "no",
-        isImplicit: attribute.decision?.state === false && attribute.decision?.kind === DecisionKind.Implicit
-    };
-    const trueValue: Value<string> = {
-        id: trueValueId,
-        name: "yes",
-        isImplicit: attribute.decision?.state === true && attribute.decision?.kind === DecisionKind.Implicit
-    };
-    const allowedValues = [
-        isFalseValuePossible && falseValue,
-        isTrueValuePossible && trueValue
-    ].filter(Boolean) as Value<string>[];;
-    const blockedValues = [
-        (!isFalseValuePossible) && falseValue,
-        (!isTrueValuePossible) && trueValue
-    ].filter(Boolean) as Value<string>[];;
 </script>
+
