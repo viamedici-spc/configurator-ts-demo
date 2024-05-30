@@ -25,12 +25,9 @@ import {
   ExplainQuestionType,
   ExplainQuestionSubject,
 } from "@viamedici-spc/configurator-ts";
-import { useStore } from 'vuex';
-
-const store = useStore();
 
 const activeAttribute = useActiveAttribute();
-const { attribute, makeDecision, explain, applySolution } = useNumericAttribute(activeAttribute!);
+const { attribute, makeDecision, explain, applySolution } = useNumericAttribute(activeAttribute!.value);
 
 const pendingValue = ref<number | undefined | null>(null);
 
@@ -63,7 +60,7 @@ const applyPendingValue = async () => {
               question: ExplainQuestionType.whyIsStateNotPossible,
               state: roundedValue!,
               subject: ExplainQuestionSubject.numeric,
-              attributeId: activeAttribute!,
+              attributeId: activeAttribute!.value,
             },
             "full"
           ),
@@ -73,7 +70,6 @@ const applyPendingValue = async () => {
       return null;
     }
   );
-  store.commit("setRerender");
 };
 
 const inputValue = computed(() => {

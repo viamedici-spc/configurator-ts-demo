@@ -21,23 +21,21 @@ import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
 import { attributeIdToString } from "../../../utils/Naming";
 import CommonValueSelection, {Value} from "../CommonValueSelection.vue";
 import { handleExplain } from "../../../utils/Explain";
-import { useStore } from "vuex";
 
 
-const store = useStore();
 
 const nothingValueId = "<nothing>";
 const includedValueId = "included";
 const excludedValueId = "excluded";
 
 const activeAttribute = useActiveAttribute();
-    const {attribute, makeDecision, explain, applySolution} = useComponentAttribute(activeAttribute!);
+    const {attribute, makeDecision, explain, applySolution} = useComponentAttribute(activeAttribute!.value);
 
     const onChange = async (valueId: string | string[]) => {
         if (valueId === nothingValueId) {
             if (attribute.decision?.kind === DecisionKind.Explicit) {
                 console.info("Reset decision for %s", attributeIdToString(attribute.id));
-                await handleDecisionResponse(() => makeDecision(null)).finally(()=>store.commit("setRerender"));
+                await handleDecisionResponse(() => makeDecision(null));
                 
             }
         } else {
@@ -47,13 +45,10 @@ const activeAttribute = useActiveAttribute();
                 console.info("Make decision for %s: %s", attributeIdToString(attribute.id), state.toString());
 
                 await handleDecisionResponse(() => makeDecision(state));
-                store.commit("setRerender");
             } else {
                 console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), state.toString());
 
-                await handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, state: state, subject: ExplainQuestionSubject.component, attributeId:activeAttribute!}, "full"), applySolution);
-                store.commit("setRerender");
-                // Here store.commit is executed while handleExplain is getting executed
+                await handleExplain(() => explain({question: ExplainQuestionType.whyIsStateNotPossible, state: state, subject: ExplainQuestionSubject.component, attributeId:activeAttribute!.value}, "full"), applySolution);
             }
         }
     };
