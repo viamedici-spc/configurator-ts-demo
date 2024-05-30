@@ -5,14 +5,14 @@
 </template>
 
 <script setup lang="ts">
-import { useChoiceAttribute } from '../../../utils/useAttributes';
+import { useChoiceAttributeRef } from '../../../utils/useAttributes';
 import { useActiveAttribute } from '../AttributeItem.vue';
 
  const activeAttribute = useActiveAttribute();
- const clearDecisions = useChoiceAttribute(activeAttribute!.value);
+ const clearDecisions = useChoiceAttributeRef(activeAttribute!.value);
 
  const onClick = async()=>{
-    alert(clearDecisions?.explain);
+    alert(clearDecisions?.value.explain);
  }
 
 
