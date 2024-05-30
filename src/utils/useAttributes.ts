@@ -37,6 +37,7 @@ import {getChoiceAttributeResetDecisions} from '../internal/attributeHelper';
 import {match} from 'ts-pattern';
 import {useSessionContext} from './contexts';
 import {getComponentSubtreeResetDecisions} from '../internal/attributeHelper';
+import { RefSymbol } from '@vue/reactivity';
 
 function throwIfConfigurationIsNull(configuration: any) {
     if (configuration === null || configuration === undefined) {
@@ -64,7 +65,7 @@ export function useAttributes(attributes?: GlobalAttributeId[], ignoreMissingAtt
     return computedAttributes.value
 }
 
-export function useAttributesRef(attributes?: GlobalAttributeId[], ignoreMissingAttributes: boolean = false): ComputedRef<readonly Attribute[]> {
+export function useAttributesRef(attributes?: GlobalAttributeId[], ignoreMissingAttributes: boolean = false): ComputedRef<Attribute[]> {
 
     const configuration = useConfigurationContext();
 
@@ -80,7 +81,7 @@ export function useAttributesRef(attributes?: GlobalAttributeId[], ignoreMissing
             .filter(attr => ignoreMissingAttributes ? attr !== null : true) as Attribute[];
     });
 
-    return computedAttributes
+    return computedAttributes as ComputedRef<Attribute[]>;
 }
 
 export type UseAttributeExplainResult<T extends WhyIsStateNotPossible> = {
@@ -96,51 +97,6 @@ export type UseChoiceAttributeResult = UseAttributeExplainResult<WhyIsChoiceValu
     clearDecisions: () => Promise<void>
 }
 
-
-export function useChoiceAttribute(attributeId: GlobalAttributeId): UseChoiceAttributeResult {
-    const configuration = useConfigurationContext();
-    const session = ref(useSessionContext());
-    const makeDecision = (d: ExplicitDecision) => session.value?.makeDecision(d);
-    const setManyDecision = (d: ReadonlyArray<ExplicitDecision>, m: SetManyMode) => session.value?.setMany(d, m);
-    const attributeExplainResult = useAttributeExplain<WhyIsChoiceValueStateNotPossible>(attributeId, ExplainQuestionSubject.choiceValue);
-
-    if (configuration === null || configuration === undefined) {
-        throw new Error('Configuration is null or undefined');
-    }
-
-    const attribute = ref<ChoiceAttribute | undefined>(ConfigurationInterpreter.getChoiceAttribute(configuration.value!, attributeId));
-
-    const result = computed(() => {
-        if (!attribute.value) return undefined;
-        return {
-            makeDecision: async (ChoiceValueId: ChoiceValueId, state: ChoiceValueDecisionState | null | undefined) => {
-                await makeDecision({
-                    type: AttributeType.Choice,
-                    attributeId: attributeId,
-                    choiceValueId: ChoiceValueId,
-                    state: state,
-                } as ExplicitChoiceDecision)
-            },
-            clearDecisions: async () => {
-                const resetDecisions = attribute.value ? getChoiceAttributeResetDecisions(attribute.value) : [];
-                if (resetDecisions.length > 0) await setManyDecision(resetDecisions, {
-                    type: "Default"
-                })
-            },
-            attribute: attribute.value,
-            ...attributeExplainResult
-        };
-    });
-
-    watchEffect(() => {
-        if (!attribute.value) {
-            return undefined;
-        }
-    });
-
-    return result.value!;
-
-}
 
 export function useChoiceAttributeRef(attributeId: GlobalAttributeId): ComputedRef<UseChoiceAttributeResult> {
     
