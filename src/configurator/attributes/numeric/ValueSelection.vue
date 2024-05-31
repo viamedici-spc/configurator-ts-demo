@@ -14,7 +14,7 @@
 
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 import { useActiveAttribute } from "../AttributeItem.vue";
 import { useNumericAttributeRef } from "../../../utils/useAttributes";
 import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";

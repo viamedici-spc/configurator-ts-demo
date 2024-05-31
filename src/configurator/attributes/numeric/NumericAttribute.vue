@@ -9,9 +9,9 @@
 </template>
 
 <script setup lang="ts">
-import SatisfactionIndicator from '../SatisfactionIndicator.vue';
-import Indicators from './Indicators.vue';
-import ValueSelection from './ValueSelection.vue';
+import SatisfactionIndicator from "../SatisfactionIndicator.vue";
+import Indicators from "./Indicators.vue";
+import ValueSelection from "./ValueSelection.vue";
 
 </script>
 
