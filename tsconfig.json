@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "noEmitOnError": false,
+    "removeComments": true,
+    "sourceMap": false,
+    "target": "ES2020",
+    "pretty": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ES2020",
+      "dom"
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

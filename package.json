@@ -1,0 +1,25 @@
+{
+  "name": "@viamedici-spc/configurator-ts-demo",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:preview": "npm run build && npm run preview",
+    "postinstall": "npm-sort"
+  },
+  "dependencies": {
+    "@viamedici-spc/configurator-ts": "^1.2.0",
+    "ts-pattern": "^5.1.2",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "npm-sort": "0.0.4",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vite-plugin-checker": "^0.6.4",
+    "vue-tsc": "^1.8.27"
+  }
+}
