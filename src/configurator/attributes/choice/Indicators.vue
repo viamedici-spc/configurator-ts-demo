@@ -16,7 +16,7 @@ const model = computed(() => {
 
   return {
     isMandatory: AttributeInterpreter.isMandatory(attribute),
-    isMultiSelect: AttributeInterpreter.isMultiSelect(attribute),
+    isMultiSelect: AttributeInterpreter.isChoiceAttributeMultiSelect(attribute),
     allowedValues: AttributeInterpreter.getAllowedChoiceValues(attribute)
   }
 });

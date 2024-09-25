@@ -6,22 +6,18 @@ import {
 } from "../utils/Contexts";
 import {
   ConfigurationModelSourceType,
-  createClient,
   Configuration,
-  IConfigurationSession,
+  IConfigurationSession, SessionFactory,
 } from "@viamedici-spc/configurator-ts";
 import * as config from "../Config";
 import Attributes from "./attributes/Attributes.vue";
 import ConfigurationSatisfactionIndication from "./ConfigurationSatisfactionIndication.vue";
 
-const client = createClient({
-  sessionHandler: {
-    accessToken: config.hcaEngineAccessToken,
+const session = await SessionFactory.createSession({
+  apiBaseUrl: config.hcaEngineEndpoint,
+  sessionInitialisationOptions: {
+    accessToken: config.hcaEngineAccessToken
   },
-  hcaEngineBaseUrl: config.hcaEngineEndpoint,
-});
-
-const session = await client.createSession({
   configurationModelSource: {
     type: ConfigurationModelSourceType.Channel,
     deploymentName: config.configurationModelPackage.deploymentName,
@@ -35,8 +31,9 @@ provideSession(sessionRef);
 const configurationRef = shallowRef<Configuration>(session.getConfiguration());
 provideConfiguration(configurationRef);
 
-session.setOnConfigurationChangedHandler((c) => {
+session.addConfigurationChangedListener((c) => {
   configurationRef.value = c;
+  console.log(c);
 });
 
 </script>

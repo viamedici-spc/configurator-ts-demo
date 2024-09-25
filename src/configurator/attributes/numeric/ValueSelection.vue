@@ -4,7 +4,6 @@ import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
 import {attributeIdToString} from "../../../utils/Naming";
 import {handleExplain} from "../../../utils/Explain";
 import {
-  FailureType,
   ExplainQuestionType,
   ConfigurationInterpreter,
   AttributeType,
@@ -58,7 +57,7 @@ const applyPendingValue = async () => {
         state: roundedValue
       } as ExplicitNumericDecision),
       (e) => {
-        if (roundedValue != null && (e.type === FailureType.ConfigurationModelNotFeasible || e.type === FailureType.ConfigurationConflict)) {
+        if (roundedValue != null && (e.type === "ConfigurationModelNotFeasible" || e.type === "SetDecisionConflict")) {
           return () => handleExplain(() => session.explain({
             subject: ExplainQuestionSubject.numeric,
             question: ExplainQuestionType.whyIsStateNotPossible,
