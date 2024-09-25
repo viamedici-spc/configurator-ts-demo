@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import {
-  AttributeInterpreter, AttributeType, ConfigurationInterpreter,
+  AttributeType, ConfigurationInterpreter, ConfiguratorErrorType,
   DecisionKind, ExplainQuestionSubject,
   ExplainQuestionType, ExplicitBooleanDecision,
 } from "@viamedici-spc/configurator-ts";
@@ -33,8 +33,8 @@ const model = computed(() => {
           ? falseValueId
           : nothingValueId;
 
-  const isTrueValuePossible = AttributeInterpreter.isBooleanValuePossible(attribute, true);
-  const isFalseValuePossible = AttributeInterpreter.isBooleanValuePossible(attribute, false);
+  const isTrueValuePossible = attribute.possibleDecisionStates.includes(true);
+  const isFalseValuePossible = attribute.possibleDecisionStates.includes(false);
   const falseValue: Value = {
     id: falseValueId,
     name: "no",
@@ -68,14 +68,25 @@ const model = computed(() => {
     } else {
       const value = valueId === trueValueId;
 
-      if (AttributeInterpreter.isBooleanValuePossible(attribute, value)) {
+      if (attribute.possibleDecisionStates.includes(value)) {
         console.info("Make decision for %s: %s", attributeIdToString(attribute.id), value.toString());
 
         await handleDecisionResponse(() => session.makeDecision({
               type: AttributeType.Boolean,
               attributeId: attributeId,
               state: value
-            } as ExplicitBooleanDecision)
+            } as ExplicitBooleanDecision),
+            (e) => {
+              if (e.type === ConfiguratorErrorType.ConflictWithConsequence) {
+                return () => handleExplain(() => session.explain({
+                  subject: ExplainQuestionSubject.boolean,
+                  question: ExplainQuestionType.whyIsStateNotPossible,
+                  state: value,
+                  attributeId
+                }, "full"), s => session.applySolution(s));
+              }
+              return null;
+            }
         );
       } else {
         console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), value.toString());

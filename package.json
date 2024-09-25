@@ -10,7 +10,8 @@
     "postinstall": "npm-sort"
   },
   "dependencies": {
-    "@viamedici-spc/configurator-ts": "^1.2.0",
+    "@viamedici-spc/configurator-ts": "2.0.0",
+    "fp-ts": "^2.16.5",
     "ts-pattern": "^5.1.2",
     "vue": "^3.4.21"
   },

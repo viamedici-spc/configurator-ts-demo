@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import {ref, computed} from "vue";
+import {computed, ref} from "vue";
 import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
 import {attributeIdToString} from "../../../utils/Naming";
 import {handleExplain} from "../../../utils/Explain";
 import {
-  FailureType,
-  ExplainQuestionType,
-  ConfigurationInterpreter,
   AttributeType,
-  ExplicitNumericDecision,
+  ConfigurationInterpreter,
+  ConfiguratorErrorType,
   ExplainQuestionSubject,
+  ExplainQuestionType,
+  ExplicitNumericDecision,
 } from "@viamedici-spc/configurator-ts";
 import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
 
@@ -58,7 +58,7 @@ const applyPendingValue = async () => {
         state: roundedValue
       } as ExplicitNumericDecision),
       (e) => {
-        if (roundedValue != null && (e.type === FailureType.ConfigurationModelNotFeasible || e.type === FailureType.ConfigurationConflict)) {
+        if (roundedValue != null && e.type === ConfiguratorErrorType.SetDecisionConflict) {
           return () => handleExplain(() => session.explain({
             subject: ExplainQuestionSubject.numeric,
             question: ExplainQuestionType.whyIsStateNotPossible,

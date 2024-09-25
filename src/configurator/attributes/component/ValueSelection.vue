@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import {
-  AttributeInterpreter, AttributeType,
-  ComponentDecisionState, ConfigurationInterpreter,
+  AttributeType,
+  ComponentDecisionState, ConfigurationInterpreter, ConfiguratorErrorType,
   DecisionKind, ExplainQuestionSubject,
   ExplainQuestionType, ExplicitComponentDecision,
 } from "@viamedici-spc/configurator-ts";
-import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
-import { attributeIdToString } from "../../../utils/Naming";
-import CommonValueSelection, { Value } from "../CommonValueSelection.vue";
-import { handleExplain } from "../../../utils/Explain";
-import { computed } from "vue";
+import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
+import {attributeIdToString} from "../../../utils/Naming";
+import CommonValueSelection, {Value} from "../CommonValueSelection.vue";
+import {handleExplain} from "../../../utils/Explain";
+import {computed} from "vue";
 import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
 
 const nothingValueId = "<nothing>";
@@ -34,8 +34,8 @@ const model = computed(() => {
           ? excludedValueId
           : nothingValueId;
 
-  const isIncludedStatePossible = AttributeInterpreter.isComponentStatePossible(attribute, ComponentDecisionState.Included);
-  const isExcludedStatePossible = AttributeInterpreter.isComponentStatePossible(attribute, ComponentDecisionState.Excluded);
+  const isIncludedStatePossible = attribute.possibleDecisionStates.includes(ComponentDecisionState.Included);
+  const isExcludedStatePossible = attribute.possibleDecisionStates.includes(ComponentDecisionState.Excluded);
   const excludedValue: Value = {
     id: excludedValueId,
     name: "excluded",
@@ -68,15 +68,25 @@ const model = computed(() => {
       }
     } else {
       const state = valueId === includedValueId ? ComponentDecisionState.Included : ComponentDecisionState.Excluded;
-
-      if (AttributeInterpreter.isComponentStatePossible(attribute, state)) {
+      if (attribute.possibleDecisionStates.includes(state)) {
         console.info("Make decision for %s: %s", attributeIdToString(attribute.id), state.toString());
 
         await handleDecisionResponse(() => session.makeDecision({
               type: AttributeType.Component,
               attributeId: attributeId,
               state
-            } as ExplicitComponentDecision)
+            } as ExplicitComponentDecision),
+            (e) => {
+              if (e.type === ConfiguratorErrorType.ConflictWithConsequence) {
+                return () => handleExplain(() => session.explain({
+                  subject: ExplainQuestionSubject.component,
+                  question: ExplainQuestionType.whyIsStateNotPossible,
+                  state,
+                  attributeId
+                }, "full"), s => session.applySolution(s));
+              }
+              return null;
+            }
         );
       } else {
         console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), state.toString());

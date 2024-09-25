@@ -1,32 +1,31 @@
 <script setup lang="ts">
-import {shallowRef, shallowReadonly} from "vue";
+import {ref, shallowReadonly, shallowRef} from "vue";
+import {provideCanResetConfiguration, provideConfiguration, provideSession,} from "../utils/Contexts";
 import {
-  provideConfiguration,
-  provideSession,
-} from "../utils/Contexts";
-import {
-  ConfigurationModelSourceType,
-  createClient,
+  AllowedRulesInExplainType,
   Configuration,
+  ConfigurationModelSourceType,
   IConfigurationSession,
+  SessionFactory,
 } from "@viamedici-spc/configurator-ts";
 import * as config from "../Config";
 import Attributes from "./attributes/Attributes.vue";
 import ConfigurationSatisfactionIndication from "./ConfigurationSatisfactionIndication.vue";
+import ConfigurationMenu from "./Menu.vue";
 
-const client = createClient({
-  sessionHandler: {
-    accessToken: config.hcaEngineAccessToken,
+const session = await SessionFactory.createSession({
+  apiBaseUrl: config.hcaEngineEndpoint,
+  sessionInitialisationOptions: {
+    accessToken: config.hcaEngineAccessToken
   },
-  hcaEngineBaseUrl: config.hcaEngineEndpoint,
-});
-
-const session = await client.createSession({
   configurationModelSource: {
     type: ConfigurationModelSourceType.Channel,
     deploymentName: config.configurationModelPackage.deploymentName,
     channel: config.configurationModelPackage.channel,
   },
+  allowedInExplain: {
+    rules: {type: AllowedRulesInExplainType.all}
+  }
 });
 
 const sessionRef = shallowReadonly<IConfigurationSession>(session);
@@ -35,8 +34,17 @@ provideSession(sessionRef);
 const configurationRef = shallowRef<Configuration>(session.getConfiguration());
 provideConfiguration(configurationRef);
 
-session.setOnConfigurationChangedHandler((c) => {
+session.addConfigurationChangedListener((c) => {
   configurationRef.value = c;
+  console.log("Configuration changed", c);
+});
+
+const canResetConfigurationRef = ref<boolean>(session.canResetConfiguration);
+provideCanResetConfiguration(canResetConfigurationRef);
+
+session.addCanResetConfigurationChangedListener((b) => {
+  canResetConfigurationRef.value = b;
+  console.log("CanResetConfiguration changed", b);
 });
 
 </script>
@@ -47,6 +55,7 @@ session.setOnConfigurationChangedHandler((c) => {
       <h1>Demo Configurator with Vue.js</h1>
     </div>
     <ConfigurationSatisfactionIndication/>
+    <ConfigurationMenu/>
     <div class="main">
       <Attributes/>
     </div>
@@ -57,15 +66,21 @@ session.setOnConfigurationChangedHandler((c) => {
 .configurator {
   max-width: 1250px;
   flex-grow: 1;
+  display: grid;
+  grid-template-rows: [header] auto [satisfaction menu] auto [gap] 1em [main] auto;
+  grid-template-columns: [satisfaction header-start main-start] 1fr [gap] 1em [menu] auto [header-end main-end];
+  align-content: start;
 }
 
 .header {
+  grid-area: header;
   display: grid;
   grid-template-columns: [title] 1fr auto;
   margin-top: 1em;
 }
 
 .main {
+  grid-area: main;
   display: grid;
 }
 </style>

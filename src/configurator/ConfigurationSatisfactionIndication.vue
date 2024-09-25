@@ -29,12 +29,13 @@ const onExplain = () => {
 
 <style scoped>
 .configuration-satisfaction-indication {
-  margin-bottom: 1em;
+  grid-area: satisfaction;
   display: grid;
   grid-template-rows: [text explain-button] auto;
   grid-template-columns: [text] auto [explain-button] auto;
   gap: 0.5em;
   justify-content: start;
+  align-content: center;
   background-color: var(--color-unsatisfied-bg);
   color: var(--color-unsatisfied);
   padding: var(--size-card-padding);

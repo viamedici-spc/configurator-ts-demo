@@ -2,7 +2,7 @@
 import {
   AttributeInterpreter, AttributeType,
   ChoiceValueDecisionState,
-  ChoiceValueId, ConfigurationInterpreter,
+  ChoiceValueId, ConfigurationInterpreter, ConfiguratorErrorType,
   DecisionKind, ExplainQuestionSubject,
   ExplainQuestionType, ExplicitChoiceDecision,
 } from "@viamedici-spc/configurator-ts";
@@ -30,8 +30,8 @@ const model = computed(() => {
   const allowedChoiceValues = AttributeInterpreter.getAllowedChoiceValues(attribute)
       .map(v => ({id: v.id, isImplicit: v.decision?.kind === DecisionKind.Implicit} satisfies Value));
   const blockedChoiceValues = AttributeInterpreter.getBlockedChoiceValues(attribute);
-  const isMultiselect = AttributeInterpreter.isMultiSelect(attribute);
-  const selectedChoiceValueIds = AttributeInterpreter.getSelectedChoiceValues(attribute).map((a) => a.id as ChoiceValueId);
+  const isMultiselect = AttributeInterpreter.isChoiceAttributeMultiSelect(attribute);
+  const selectedChoiceValueIds = AttributeInterpreter.getIncludedChoiceValues(attribute).map((a) => a.id as ChoiceValueId);
   const selectedChoiceValueId = selectedChoiceValueIds[0] ?? nothingChoiceValueId;
 
   const onChange = async (choiceValueId: ChoiceValueId) => {
@@ -48,7 +48,7 @@ const model = computed(() => {
       } else if (selectedChoiceValueIds.length > 1) {
         console.info("Reset all decisions for %s", attributeIdToString(attribute.id), selectedChoiceValueId);
         await handleDecisionResponse(async () => {
-          const resetDecisions = attribute.values
+          const resetDecisions = [...attribute.values.values()]
               .filter(v => v.decision != null && v.decision.kind === DecisionKind.Explicit)
               .map(v => ({
                 type: AttributeType.Choice,
@@ -58,7 +58,7 @@ const model = computed(() => {
               } as ExplicitChoiceDecision));
 
           if (resetDecisions.length > 0) {
-            await session.setMany(resetDecisions, {type: "Default"});
+            await session.setMany(resetDecisions, {type: "KeepExistingDecisions"});
           }
         });
       }
@@ -73,7 +73,19 @@ const model = computed(() => {
             attributeId: attributeId,
             choiceValueId: choiceValueId,
             state: state,
-          } as ExplicitChoiceDecision)
+          } as ExplicitChoiceDecision),
+          (e) => {
+            if (e.type === ConfiguratorErrorType.ConflictWithConsequence) {
+              return () => handleExplain(() => session.explain({
+                subject: ExplainQuestionSubject.choiceValue,
+                question: ExplainQuestionType.whyIsStateNotPossible,
+                choiceValueId: choiceValueId,
+                state,
+                attributeId
+              }, "full"), s => session.applySolution(s));
+            }
+            return null;
+          }
       );
     } else if (choiceValueId != null && choiceValueId !== "") {
       console.info("Explain blocked value for %s.%s", attributeIdToString(attribute.id), choiceValueId);

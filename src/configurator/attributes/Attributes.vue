@@ -12,12 +12,12 @@ import AttributeItem from "./AttributeItem.vue";
     <AttributeItem :attributeId="{localId: 'HeavyDuty'}"/>
     <AttributeItem :attributeId="{localId: 'HorsePower'}"/>
     <AttributeItem :attributeId="{localId: 'Accessories'}"/>
+    <AttributeItem :attributeId="{localId: 'SpareWheel'}"/>
   </div>
 </template>
 
 <style scoped>
 .attributes {
-  grid-area: inherit;
   display: grid;
   grid-auto-flow: row;
   align-content: start;

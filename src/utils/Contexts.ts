@@ -4,6 +4,7 @@ import {Configuration, GlobalAttributeId, IConfigurationSession} from "@viamedic
 const configurationContextKey: InjectionKey<Ref<Configuration>> = Symbol("ConfigurationContext");
 const sessionContextKey: InjectionKey<Readonly<IConfigurationSession>> = Symbol("SessionContext");
 const activeAttributeContextKey: InjectionKey<Ref<GlobalAttributeId>> = Symbol("ActiveAttributeContext");
+const canResetConfigurationContextKey: InjectionKey<Ref<boolean>> = Symbol("CanResetConfigurationContext");
 
 export function provideConfiguration(configuration: Ref<Configuration>) {
     provide(configurationContextKey, configuration);
@@ -42,5 +43,17 @@ export function useActiveAttribute(): Ref<GlobalAttributeId> {
         throw new Error("useActiveAttribute must be used within the context ActiveAttributeContext");
     }
 
+    return context;
+}
+
+export function provideCanResetConfiguration(canReset: Ref<boolean>) {
+    provide(canResetConfigurationContextKey, canReset);
+}
+
+export function useCanResetConfiguration(): ShallowRef<boolean> {
+    const context = inject(canResetConfigurationContextKey);
+    if (!context) {
+        throw new Error("useCanResetConfiguration must be used within the context CanResetConfigurationContext");
+    }
     return context;
 }
