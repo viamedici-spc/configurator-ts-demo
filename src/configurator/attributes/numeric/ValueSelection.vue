@@ -57,7 +57,7 @@ const applyPendingValue = async () => {
         state: roundedValue
       } as ExplicitNumericDecision),
       (e) => {
-        if (roundedValue != null && (e.type === "ConfigurationModelNotFeasible" || e.type === "SetDecisionConflict")) {
+        if (roundedValue != null && e.type === "SetDecisionConflict") {
           return () => handleExplain(() => session.explain({
             subject: ExplainQuestionSubject.numeric,
             question: ExplainQuestionType.whyIsStateNotPossible,
