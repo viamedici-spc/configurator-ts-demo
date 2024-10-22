@@ -31,22 +31,22 @@ const model = computed(() => {
       .map(v => ({id: v.id, isImplicit: v.decision?.kind === DecisionKind.Implicit} satisfies Value));
   const blockedChoiceValues = AttributeInterpreter.getBlockedChoiceValues(attribute);
   const isMultiselect = AttributeInterpreter.isChoiceAttributeMultiSelect(attribute);
-  const selectedChoiceValueIds = AttributeInterpreter.getIncludedChoiceValues(attribute).map((a) => a.id as ChoiceValueId);
-  const selectedChoiceValueId = selectedChoiceValueIds[0] ?? nothingChoiceValueId;
+  const includedChoiceValueIds = AttributeInterpreter.getIncludedChoiceValues(attribute).map((a) => a.id as ChoiceValueId);
+  const includedChoiceValueId = includedChoiceValueIds[0] ?? nothingChoiceValueId;
 
   const onChange = async (choiceValueId: ChoiceValueId) => {
     if (choiceValueId === nothingChoiceValueId) {
-      if (selectedChoiceValueIds.length === 1) {
-        console.info("Reset decision for %s.%s", attributeIdToString(attribute.id), selectedChoiceValueId);
+      if (includedChoiceValueIds.length === 1) {
+        console.info("Reset decision for %s.%s", attributeIdToString(attribute.id), includedChoiceValueId);
         await handleDecisionResponse(() => session.makeDecision({
               type: AttributeType.Choice,
               attributeId: attributeId,
-              choiceValueId: selectedChoiceValueId,
+              choiceValueId: includedChoiceValueId,
               state: null,
             } as ExplicitChoiceDecision)
         );
-      } else if (selectedChoiceValueIds.length > 1) {
-        console.info("Reset all decisions for %s", attributeIdToString(attribute.id), selectedChoiceValueId);
+      } else if (includedChoiceValueIds.length > 1) {
+        console.info("Reset all decisions for %s", attributeIdToString(attribute.id), includedChoiceValueId);
         await handleDecisionResponse(async () => {
           const resetDecisions = [...attribute.values.values()]
               .filter(v => v.decision != null && v.decision.kind === DecisionKind.Explicit)
@@ -64,7 +64,7 @@ const model = computed(() => {
       }
     } else if (allowedChoiceValues.some(v => v.id === choiceValueId)) {
       console.info("Make decision for %s.%s", attributeIdToString(attribute.id), choiceValueId);
-      const state = selectedChoiceValueIds.some(v => v === choiceValueId)
+      const state = includedChoiceValueIds.some(v => v === choiceValueId)
           ? null
           : ChoiceValueDecisionState.Included;
 
@@ -103,8 +103,8 @@ const model = computed(() => {
   return {
     allowedChoiceValues,
     blockedChoiceValues,
-    selectedChoiceValueIds,
-    selectedChoiceValueId,
+    selectedChoiceValueIds: includedChoiceValueIds,
+    selectedChoiceValueId: includedChoiceValueId,
     isMultiselect,
     onChange
   }
