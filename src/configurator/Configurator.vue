@@ -12,6 +12,7 @@ import * as config from "../Config";
 import Attributes from "./attributes/Attributes.vue";
 import ConfigurationSatisfactionIndication from "./ConfigurationSatisfactionIndication.vue";
 import ConfigurationMenu from "./Menu.vue";
+import StoringMenu from "./StoringMenu.vue";
 
 const session = await SessionFactory.createSession({
   apiBaseUrl: config.hcaEngineEndpoint,
@@ -39,7 +40,7 @@ session.addConfigurationChangedListener((c) => {
   console.log("Configuration changed", c);
 });
 
-const canResetConfigurationRef = ref<boolean>(session.canResetConfiguration);
+const canResetConfigurationRef = ref<boolean>(session.canResetConfiguration());
 provideCanResetConfiguration(canResetConfigurationRef);
 
 session.addCanResetConfigurationChangedListener((b) => {
@@ -55,6 +56,7 @@ session.addCanResetConfigurationChangedListener((b) => {
       <h1>Demo Configurator with Vue.js</h1>
     </div>
     <ConfigurationSatisfactionIndication/>
+    <StoringMenu/>
     <ConfigurationMenu/>
     <div class="main">
       <Attributes/>
@@ -67,8 +69,8 @@ session.addCanResetConfigurationChangedListener((b) => {
   max-width: 1250px;
   flex-grow: 1;
   display: grid;
-  grid-template-rows: [header] auto [satisfaction menu] auto [gap] 1em [main] auto;
-  grid-template-columns: [satisfaction header-start main-start] 1fr [gap] 1em [menu] auto [header-end main-end];
+  grid-template-rows: [header] auto [satisfaction menu storing-menu] auto [gap] 1em [main] auto;
+  grid-template-columns: [satisfaction header-start main-start] 1fr [gap] 1em [storing-menu] auto [gap] 1em [menu] auto [header-end main-end];
   align-content: start;
 }
 
