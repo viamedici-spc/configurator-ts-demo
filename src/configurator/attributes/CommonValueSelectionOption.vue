@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
-import {Value} from "./CommonValueSelection.vue";
+import { Value, AllowedValue } from "./CommonValueSelection.vue";
 
 interface Props {
-  value: Value;
+  value: Value | AllowedValue;
 }
 
 defineProps<Props>();
@@ -12,7 +12,9 @@ defineProps<Props>();
 
 <template>
   <option :value="value.id">
-    {{ value.isImplicit ? "Implicit: " : "" }}
+    {{
+      "isImplicit" in value && value.isImplicit ? ("isImmutable" in value && value.isImmutable ? "Fixed: " : "Implicit: ") : ""
+    }}
     {{ value.name ?? value.id }}
   </option>
 </template>

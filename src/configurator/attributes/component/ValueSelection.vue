@@ -5,12 +5,12 @@ import {
   DecisionKind, ExplainQuestionSubject,
   ExplainQuestionType, ExplicitComponentDecision,
 } from "@viamedici-spc/configurator-ts";
-import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
-import {attributeIdToString} from "../../../utils/Naming";
-import CommonValueSelection, {Value} from "../CommonValueSelection.vue";
-import {handleExplain} from "../../../utils/Explain";
-import {computed} from "vue";
-import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
+import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
+import { attributeIdToString } from "../../../utils/Naming";
+import CommonValueSelection, { AllowedValue, Value } from "../CommonValueSelection.vue";
+import { handleExplain } from "../../../utils/Explain";
+import { computed } from "vue";
+import { useActiveAttribute, useConfiguration, useSession } from "../../../utils/Contexts";
 
 const nothingValueId = "<nothing>";
 const includedValueId = "included";
@@ -36,15 +36,17 @@ const model = computed(() => {
 
   const isIncludedStatePossible = attribute.possibleDecisionStates.includes(ComponentDecisionState.Included);
   const isExcludedStatePossible = attribute.possibleDecisionStates.includes(ComponentDecisionState.Excluded);
-  const excludedValue: Value = {
+  const excludedValue: AllowedValue = {
     id: excludedValueId,
     name: "excluded",
-    isImplicit: attribute.decision?.state === ComponentDecisionState.Excluded && attribute.decision?.kind === DecisionKind.Implicit
+    isImplicit: attribute.decision?.state === ComponentDecisionState.Excluded && attribute.decision?.kind === DecisionKind.Implicit,
+    isImmutable: attribute.isPossibleDecisionStatesImmutable
   };
-  const includedValue: Value = {
+  const includedValue: AllowedValue = {
     id: includedValueId,
     name: "included",
-    isImplicit: attribute.decision?.state === ComponentDecisionState.Included && attribute.decision?.kind === DecisionKind.Implicit
+    isImplicit: attribute.decision?.state === ComponentDecisionState.Included && attribute.decision?.kind === DecisionKind.Implicit,
+    isImmutable: attribute.isPossibleDecisionStatesImmutable
   };
   const allowedValues = [
     ...(isIncludedStatePossible ? [includedValue] : []),

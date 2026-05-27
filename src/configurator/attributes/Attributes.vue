@@ -13,6 +13,7 @@ import AttributeItem from "./AttributeItem.vue";
     <AttributeItem :attributeId="{localId: 'HorsePower'}"/>
     <AttributeItem :attributeId="{localId: 'Accessories'}"/>
     <AttributeItem :attributeId="{localId: 'SpareWheel'}"/>
+    <AttributeItem :attributeId="{localId: 'Color'}"/>
   </div>
 </template>
 

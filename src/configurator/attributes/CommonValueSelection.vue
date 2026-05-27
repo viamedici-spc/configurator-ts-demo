@@ -4,13 +4,18 @@ import CommonValueSelectionOption from "./CommonValueSelectionOption.vue";
 export type Value = {
   id: string;
   name?: string;
-  isImplicit?: boolean;
+};
+
+export type AllowedValue = Value & {
+  isImplicit: boolean;
+  isImmutable: boolean;
 };
 
 interface Props {
   nothingValue: Value;
-  allowedValues: ReadonlyArray<Value>;
+  allowedValues: ReadonlyArray<AllowedValue>;
   blockedValues: ReadonlyArray<Value>;
+  unavailableValues?: ReadonlyArray<Value>;
   isMultiselect: boolean;
   selectedValues: string | string[];
 }
@@ -40,6 +45,9 @@ const handleChange = (event: Event) => {
     <CommonValueSelectionOption v-for="value in allowedValues" :key="value.id" :value="value"/>
     <optgroup v-if="blockedValues!.length > 0" label="Blocked">
       <CommonValueSelectionOption v-for="value in blockedValues" :key="value.id" :value="value"/>
+    </optgroup>
+    <optgroup v-if="unavailableValues && unavailableValues.length > 0" label="Unavailable" :disabled="true">
+      <CommonValueSelectionOption v-for="value in unavailableValues" :key="value.id" :value="value"/>
     </optgroup>
   </select>
 </template>

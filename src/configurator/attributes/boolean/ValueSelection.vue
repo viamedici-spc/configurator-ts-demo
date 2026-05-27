@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import { computed } from "vue";
 import {
   AttributeType, ConfigurationInterpreter, ConfiguratorErrorType,
   DecisionKind, ExplainQuestionSubject,
   ExplainQuestionType, ExplicitBooleanDecision,
 } from "@viamedici-spc/configurator-ts";
-import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
-import {attributeIdToString} from "../../../utils/Naming";
-import {handleExplain} from "../../../utils/Explain";
-import CommonValueSelection, {Value} from "../CommonValueSelection.vue";
-import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
+import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
+import { attributeIdToString } from "../../../utils/Naming";
+import { handleExplain } from "../../../utils/Explain";
+import CommonValueSelection, { AllowedValue, Value } from "../CommonValueSelection.vue";
+import { useActiveAttribute, useConfiguration, useSession } from "../../../utils/Contexts";
 
 const nothingValueId = "<nothing>";
 const trueValueId = "true";
@@ -35,15 +35,17 @@ const model = computed(() => {
 
   const isTrueValuePossible = attribute.possibleDecisionStates.includes(true);
   const isFalseValuePossible = attribute.possibleDecisionStates.includes(false);
-  const falseValue: Value = {
+  const falseValue: AllowedValue = {
     id: falseValueId,
     name: "no",
-    isImplicit: attribute.decision?.state === false && attribute.decision?.kind === DecisionKind.Implicit
+    isImplicit: attribute.decision?.state === false && attribute.decision?.kind === DecisionKind.Implicit,
+    isImmutable: attribute.isPossibleDecisionStatesImmutable
   };
-  const trueValue: Value = {
+  const trueValue: AllowedValue = {
     id: trueValueId,
     name: "yes",
-    isImplicit: attribute.decision?.state === true && attribute.decision?.kind === DecisionKind.Implicit
+    isImplicit: attribute.decision?.state === true && attribute.decision?.kind === DecisionKind.Implicit,
+    isImmutable: attribute.isPossibleDecisionStatesImmutable
   };
   const allowedValues = [
     ...(isFalseValuePossible ? [falseValue] : []),

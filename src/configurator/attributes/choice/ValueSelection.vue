@@ -6,12 +6,12 @@ import {
   DecisionKind, ExplainQuestionSubject,
   ExplainQuestionType, ExplicitChoiceDecision,
 } from "@viamedici-spc/configurator-ts";
-import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
-import {attributeIdToString} from "../../../utils/Naming";
-import {handleExplain} from "../../../utils/Explain";
-import CommonValueSelection, {Value} from "../CommonValueSelection.vue";
-import {computed} from "vue";
-import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
+import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
+import { attributeIdToString } from "../../../utils/Naming";
+import { handleExplain } from "../../../utils/Explain";
+import CommonValueSelection, { AllowedValue, Value } from "../CommonValueSelection.vue";
+import { computed } from "vue";
+import { useActiveAttribute, useConfiguration, useSession } from "../../../utils/Contexts";
 
 const nothingChoiceValueId = "<nothing>";
 
@@ -28,8 +28,14 @@ const model = computed(() => {
   }
 
   const allowedChoiceValues = AttributeInterpreter.getAllowedChoiceValues(attribute)
-      .map(v => ({id: v.id, isImplicit: v.decision?.kind === DecisionKind.Implicit} satisfies Value));
-  const blockedChoiceValues = AttributeInterpreter.getBlockedChoiceValues(attribute);
+      .map(v => ({
+        id: v.id,
+        isImplicit: v.decision?.kind === DecisionKind.Implicit,
+        isImmutable: v.isPossibleDecisionStatesImmutable
+      } satisfies AllowedValue));
+  const blockedChoiceValuesRaw = AttributeInterpreter.getBlockedChoiceValues(attribute);
+  const blockedChoiceValues = blockedChoiceValuesRaw.filter(v => !v.isPossibleDecisionStatesImmutable);
+  const unavailableChoiceValues = blockedChoiceValuesRaw.filter(v => v.isPossibleDecisionStatesImmutable);
   const isMultiselect = AttributeInterpreter.isChoiceAttributeMultiSelect(attribute);
   const selectedChoiceValueIds = AttributeInterpreter.getIncludedChoiceValues(attribute).map((a) => a.id as ChoiceValueId);
   const selectedChoiceValueId = selectedChoiceValueIds[0] ?? nothingChoiceValueId;
@@ -58,7 +64,7 @@ const model = computed(() => {
               } as ExplicitChoiceDecision));
 
           if (resetDecisions.length > 0) {
-            await session.setMany(resetDecisions, {type: "KeepExistingDecisions"});
+            await session.setMany(resetDecisions, { type: "KeepExistingDecisions" });
           }
         });
       }
@@ -103,6 +109,7 @@ const model = computed(() => {
   return {
     allowedChoiceValues,
     blockedChoiceValues,
+    unavailableChoiceValues,
     selectedChoiceValueIds,
     selectedChoiceValueId,
     isMultiselect,
@@ -117,6 +124,7 @@ const model = computed(() => {
       :nothingValue="{ id: nothingChoiceValueId, name: model.selectedChoiceValueIds.length > 0 ? 'Reset' : '' }"
       :allowedValues="model.allowedChoiceValues"
       :blockedValues="model.blockedChoiceValues"
+      :unavailable-values="model.unavailableChoiceValues"
       :isMultiselect="model.isMultiselect"
       :selectedValues="model.isMultiselect ? model.selectedChoiceValueIds : model.selectedChoiceValueId"
       @change="model.onChange"
