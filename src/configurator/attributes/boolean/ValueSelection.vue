@@ -7,12 +7,12 @@ import {
     DecisionKind,
     ExplainQuestionSubject,
     ExplainQuestionType,
-    ExplicitBooleanDecision,
+    type ExplicitBooleanDecision,
 } from "@viamedici-spc/configurator-ts";
 import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
 import {attributeIdToString} from "../../../utils/Naming";
 import {handleExplain} from "../../../utils/Explain";
-import CommonValueSelection, {AllowedValue, Value} from "../CommonValueSelection.vue";
+import CommonValueSelection, {type AllowedValue, type Value} from "../CommonValueSelection.vue";
 import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
 
 const nothingValueId = "<nothing>";

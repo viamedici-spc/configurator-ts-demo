@@ -9,7 +9,7 @@ import {
     ConfiguratorErrorType,
     ExplainQuestionSubject,
     ExplainQuestionType,
-    ExplicitNumericDecision,
+    type ExplicitNumericDecision,
 } from "@viamedici-spc/configurator-ts";
 import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
 

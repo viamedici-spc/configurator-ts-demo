@@ -7,11 +7,11 @@ import {
     DecisionKind,
     ExplainQuestionSubject,
     ExplainQuestionType,
-    ExplicitComponentDecision,
+    type ExplicitComponentDecision,
 } from "@viamedici-spc/configurator-ts";
 import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
 import {attributeIdToString} from "../../../utils/Naming";
-import CommonValueSelection, {AllowedValue, Value} from "../CommonValueSelection.vue";
+import CommonValueSelection, {type AllowedValue, type Value} from "../CommonValueSelection.vue";
 import {handleExplain} from "../../../utils/Explain";
 import {computed} from "vue";
 import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";

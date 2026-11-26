@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useSession} from "../utils/Contexts";
-import {StoredConfiguration} from "@viamedici-spc/configurator-ts";
+import type {StoredConfiguration} from "@viamedici-spc/configurator-ts";
 
 const session = useSession();
 

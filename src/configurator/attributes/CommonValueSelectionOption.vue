@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Value, AllowedValue} from "./CommonValueSelection.vue";
+import type {Value, AllowedValue} from "./CommonValueSelection.vue";
 
 interface Props {
     value: Value | AllowedValue;

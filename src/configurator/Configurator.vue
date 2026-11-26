@@ -5,9 +5,9 @@ import {
     AllowedRulesInExplainType,
     AttributeType,
     ChoiceValueDecisionState,
-    Configuration,
+    type Configuration,
     ConfigurationModelSourceType,
-    IConfigurationSession,
+    type IConfigurationSession,
     SessionFactory,
 } from "@viamedici-spc/configurator-ts";
 import * as config from "../Config";

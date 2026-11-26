@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {GlobalAttributeId} from "@viamedici-spc/configurator-ts";
+import type {GlobalAttributeId} from "@viamedici-spc/configurator-ts";
 import {computed} from "vue";
 import {attributeIdToString} from "../../utils/Naming";
 import {provideActiveAttribute} from "../../utils/Contexts";
