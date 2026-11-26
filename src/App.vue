@@ -9,25 +9,22 @@ const salesRegion = ref<SalesRegion | "">("");
 </script>
 
 <template>
-  <div class="app">
-    <Suspense>
-      <Configurator :sales-region="salesRegion" :key="salesRegion"
-                    @update:sales-region="salesRegion = $event"/>
+    <div class="app">
+        <Suspense>
+            <Configurator :sales-region="salesRegion" :key="salesRegion" @update:sales-region="salesRegion = $event" />
 
-      <template #fallback>
-        Configuration loading …
-      </template>
-    </Suspense>
-  </div>
+            <template #fallback> Configuration loading … </template>
+        </Suspense>
+    </div>
 </template>
 
 <style scoped>
 .app {
-  height: 100vh;
-  padding-left: 1em;
-  padding-right: 1em;
-  padding-bottom: 1em;
-  display: flex;
-  justify-content: center;
+    height: 100vh;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+    display: flex;
+    justify-content: center;
 }
 </style>

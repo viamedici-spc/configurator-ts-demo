@@ -19,25 +19,27 @@
     --color-selection-mode: #18c0af;
     --shape-card-border-radius: 10px;
     --size-card-padding: 1.5em;
-    --shadow-card: 1.4px 1.7px 5.3px rgba(0, 0, 0, 0.028),
-    4.7px 5.6px 17.9px rgba(0, 0, 0, 0.042),
-    21px 25px 80px rgba(0, 0, 0, 0.07);
-  }
+    --shadow-card:
+        1.4px 1.7px 5.3px rgba(0, 0, 0, 0.028), 4.7px 5.6px 17.9px rgba(0, 0, 0, 0.042),
+        21px 25px 80px rgba(0, 0, 0, 0.07);
+}
 
-  @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
     :root {
-      --color-base-0: hsl(222deg, 20%, 9%);
-      --color-base-1: hsl(0, 0%, 13%);
-      --color-text: hsl(0, 0%, 91%);
-      --color-error: hsl(0, 100%, 17%);
-      --shadow-card: none;
+        --color-base-0: hsl(222deg, 20%, 9%);
+        --color-base-1: hsl(0, 0%, 13%);
+        --color-text: hsl(0, 0%, 91%);
+        --color-error: hsl(0, 100%, 17%);
+        --shadow-card: none;
     }
-  }
+}
 
-  body {
+body {
     margin: 0;
-  }
+}
 
-  input, select, button {
+input,
+select,
+button {
     font-size: inherit;
-  }
+}

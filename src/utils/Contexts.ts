@@ -1,5 +1,5 @@
 import type {InjectionKey, Ref, ShallowRef} from "vue";
-import { provide, inject} from "vue";
+import {provide, inject} from "vue";
 import type {Configuration, GlobalAttributeId, IConfigurationSession} from "@viamedici-spc/configurator-ts";
 
 const configurationContextKey: InjectionKey<Ref<Configuration>> = Symbol("ConfigurationContext");

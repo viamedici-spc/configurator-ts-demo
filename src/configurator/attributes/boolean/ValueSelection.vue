@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import {computed} from "vue";
 import {
-  AttributeType, ConfigurationInterpreter, ConfiguratorErrorType,
-  DecisionKind, ExplainQuestionSubject,
-  ExplainQuestionType, ExplicitBooleanDecision,
+    AttributeType,
+    ConfigurationInterpreter,
+    ConfiguratorErrorType,
+    DecisionKind,
+    ExplainQuestionSubject,
+    ExplainQuestionType,
+    ExplicitBooleanDecision,
 } from "@viamedici-spc/configurator-ts";
-import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
-import { attributeIdToString } from "../../../utils/Naming";
-import { handleExplain } from "../../../utils/Explain";
-import CommonValueSelection, { AllowedValue, Value } from "../CommonValueSelection.vue";
-import { useActiveAttribute, useConfiguration, useSession } from "../../../utils/Contexts";
+import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
+import {attributeIdToString} from "../../../utils/Naming";
+import {handleExplain} from "../../../utils/Explain";
+import CommonValueSelection, {AllowedValue, Value} from "../CommonValueSelection.vue";
+import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
 
 const nothingValueId = "<nothing>";
 const trueValueId = "true";
@@ -20,105 +24,121 @@ const session = useSession();
 const configuration = useConfiguration();
 
 const model = computed(() => {
-  const attributeId = activeAttribute.value;
-  const attribute = ConfigurationInterpreter.getBooleanAttribute(configuration.value, attributeId);
-  if (attribute == undefined) {
-    console.error("Boolean attribute not found with id", attributeId)
-    throw new Error("Boolean attribute not found");
-  }
-
-  const selectedValue = attribute.decision?.state === true
-      ? trueValueId
-      : attribute.decision?.state === false
-          ? falseValueId
-          : nothingValueId;
-
-  const isTrueValuePossible = attribute.possibleDecisionStates.includes(true);
-  const isFalseValuePossible = attribute.possibleDecisionStates.includes(false);
-  const falseValue: AllowedValue = {
-    id: falseValueId,
-    name: "no",
-    isImplicit: attribute.decision?.state === false && attribute.decision?.kind === DecisionKind.Implicit,
-    isImmutable: attribute.isPossibleDecisionStatesImmutable
-  };
-  const trueValue: AllowedValue = {
-    id: trueValueId,
-    name: "yes",
-    isImplicit: attribute.decision?.state === true && attribute.decision?.kind === DecisionKind.Implicit,
-    isImmutable: attribute.isPossibleDecisionStatesImmutable
-  };
-  const allowedValues = [
-    ...(isFalseValuePossible ? [falseValue] : []),
-    ...(isTrueValuePossible ? [trueValue] : [])
-  ];
-  const blockedValues = [
-    ...(!isFalseValuePossible ? [falseValue] : []),
-    ...(!isTrueValuePossible ? [trueValue] : [])
-  ];
-
-  const onChange = async (valueId: string) => {
-    if (valueId === nothingValueId) {
-      if (attribute.decision?.kind === DecisionKind.Explicit) {
-        console.info("Reset decision for %s", attributeIdToString(attribute.id));
-        await handleDecisionResponse(() => session.makeDecision({
-              type: AttributeType.Boolean,
-              attributeId: attributeId,
-              state: null
-            } as ExplicitBooleanDecision)
-        );
-      }
-    } else {
-      const value = valueId === trueValueId;
-
-      if (attribute.possibleDecisionStates.includes(value)) {
-        console.info("Make decision for %s: %s", attributeIdToString(attribute.id), value.toString());
-
-        await handleDecisionResponse(() => session.makeDecision({
-              type: AttributeType.Boolean,
-              attributeId: attributeId,
-              state: value
-            } as ExplicitBooleanDecision),
-            (e) => {
-              if (e.type === ConfiguratorErrorType.ConflictWithConsequence) {
-                return () => handleExplain(() => session.explain({
-                  subject: ExplainQuestionSubject.boolean,
-                  question: ExplainQuestionType.whyIsStateNotPossible,
-                  state: value,
-                  attributeId
-                }, "full"), s => session.applySolution(s));
-              }
-              return null;
-            }
-        );
-      } else {
-        console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), value.toString());
-
-        await handleExplain(() => session.explain({
-          subject: ExplainQuestionSubject.boolean,
-          question: ExplainQuestionType.whyIsStateNotPossible,
-          state: value,
-          attributeId
-        }, "full"), s => session.applySolution(s));
-      }
+    const attributeId = activeAttribute.value;
+    const attribute = ConfigurationInterpreter.getBooleanAttribute(configuration.value, attributeId);
+    if (attribute == undefined) {
+        console.error("Boolean attribute not found with id", attributeId);
+        throw new Error("Boolean attribute not found");
     }
-  };
 
-  return {
-    allowedValues,
-    blockedValues,
-    selectedValue,
-    onChange
-  }
-})
+    const selectedValue =
+        attribute.decision?.state === true
+            ? trueValueId
+            : attribute.decision?.state === false
+              ? falseValueId
+              : nothingValueId;
+
+    const isTrueValuePossible = attribute.possibleDecisionStates.includes(true);
+    const isFalseValuePossible = attribute.possibleDecisionStates.includes(false);
+    const falseValue: AllowedValue = {
+        id: falseValueId,
+        name: "no",
+        isImplicit: attribute.decision?.state === false && attribute.decision?.kind === DecisionKind.Implicit,
+        isImmutable: attribute.isPossibleDecisionStatesImmutable,
+    };
+    const trueValue: AllowedValue = {
+        id: trueValueId,
+        name: "yes",
+        isImplicit: attribute.decision?.state === true && attribute.decision?.kind === DecisionKind.Implicit,
+        isImmutable: attribute.isPossibleDecisionStatesImmutable,
+    };
+    const allowedValues = [...(isFalseValuePossible ? [falseValue] : []), ...(isTrueValuePossible ? [trueValue] : [])];
+    const blockedValues = [
+        ...(!isFalseValuePossible ? [falseValue] : []),
+        ...(!isTrueValuePossible ? [trueValue] : []),
+    ];
+
+    const onChange = async (valueId: string) => {
+        if (valueId === nothingValueId) {
+            if (attribute.decision?.kind === DecisionKind.Explicit) {
+                console.info("Reset decision for %s", attributeIdToString(attribute.id));
+                await handleDecisionResponse(() =>
+                    session.makeDecision({
+                        type: AttributeType.Boolean,
+                        attributeId: attributeId,
+                        state: null,
+                    } as ExplicitBooleanDecision),
+                );
+            }
+        } else {
+            const value = valueId === trueValueId;
+
+            if (attribute.possibleDecisionStates.includes(value)) {
+                console.info("Make decision for %s: %s", attributeIdToString(attribute.id), value.toString());
+
+                await handleDecisionResponse(
+                    () =>
+                        session.makeDecision({
+                            type: AttributeType.Boolean,
+                            attributeId: attributeId,
+                            state: value,
+                        } as ExplicitBooleanDecision),
+                    e => {
+                        if (e.type === ConfiguratorErrorType.ConflictWithConsequence) {
+                            return () =>
+                                handleExplain(
+                                    () =>
+                                        session.explain(
+                                            {
+                                                subject: ExplainQuestionSubject.boolean,
+                                                question: ExplainQuestionType.whyIsStateNotPossible,
+                                                state: value,
+                                                attributeId,
+                                            },
+                                            "full",
+                                        ),
+                                    s => session.applySolution(s),
+                                );
+                        }
+                        return null;
+                    },
+                );
+            } else {
+                console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), value.toString());
+
+                await handleExplain(
+                    () =>
+                        session.explain(
+                            {
+                                subject: ExplainQuestionSubject.boolean,
+                                question: ExplainQuestionType.whyIsStateNotPossible,
+                                state: value,
+                                attributeId,
+                            },
+                            "full",
+                        ),
+                    s => session.applySolution(s),
+                );
+            }
+        }
+    };
+
+    return {
+        allowedValues,
+        blockedValues,
+        selectedValue,
+        onChange,
+    };
+});
 </script>
 
 <template>
-  <CommonValueSelection
-      :nothingValue="{ id: nothingValueId, name: model.selectedValue !== nothingValueId ? 'Reset' : '' }"
-      :allowedValues="model.allowedValues"
-      :blockedValues="model.blockedValues"
-      :isMultiselect="false"
-      :selectedValues="model.selectedValue"
-      @change="model.onChange"
-  />
+    <CommonValueSelection
+        :nothingValue="{id: nothingValueId, name: model.selectedValue !== nothingValueId ? 'Reset' : ''}"
+        :allowedValues="model.allowedValues"
+        :blockedValues="model.blockedValues"
+        :isMultiselect="false"
+        :selectedValues="model.selectedValue"
+        @change="model.onChange"
+    />
 </template>

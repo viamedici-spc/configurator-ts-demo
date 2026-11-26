@@ -1,13 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "oxc",
-    "import",
-    "promise",
-    "vue"
-  ],
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise", "vue"],
   "categories": {
     "correctness": "error"
   },
@@ -24,7 +17,5 @@
     ],
     "vitest/require-mock-type-parameters": "off"
   },
-  "ignorePatterns": [
-    "dist/**"
-  ]
+  "ignorePatterns": ["dist/**"]
 }

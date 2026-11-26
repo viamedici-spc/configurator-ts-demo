@@ -6,55 +6,50 @@ const configuration = useConfiguration();
 const session = useSession();
 
 const onExplain = () => {
-  handleExplain(() => session.explain(b => b.whyIsNotSatisfied.configuration, "full"), s => session.applySolution(s));
+    handleExplain(
+        () => session.explain(b => b.whyIsNotSatisfied.configuration, "full"),
+        s => session.applySolution(s),
+    );
 };
-
 </script>
 
 <template>
-  <div :class="['configuration-satisfaction-indication', { satisfied: configuration.isSatisfied }]">
-    <div class="text">
-      {{
-        configuration.isSatisfied ? "Configuration satisfied" : "Configuration unsatisfied"
-      }}
+    <div :class="['configuration-satisfaction-indication', {satisfied: configuration.isSatisfied}]">
+        <div class="text">
+            {{ configuration.isSatisfied ? "Configuration satisfied" : "Configuration unsatisfied" }}
+        </div>
+        <button v-if="!configuration.isSatisfied" class="explain-button" @click="onExplain">Explain</button>
     </div>
-    <button
-        v-if="!configuration.isSatisfied"
-        class="explain-button"
-        @click="onExplain">
-      Explain
-    </button>
-  </div>
 </template>
 
 <style scoped>
 .configuration-satisfaction-indication {
-  grid-area: satisfaction;
-  display: grid;
-  grid-template-rows: [text explain-button] auto;
-  grid-template-columns: [text] auto [explain-button] auto;
-  gap: 0.5em;
-  justify-content: start;
-  align-content: center;
-  background-color: var(--color-unsatisfied-bg);
-  color: var(--color-unsatisfied);
-  padding: var(--size-card-padding);
-  border-radius: var(--shape-card-border-radius);
-  font-weight: bolder;
-  box-shadow: var(--shadow-card);
+    grid-area: satisfaction;
+    display: grid;
+    grid-template-rows: [text explain-button] auto;
+    grid-template-columns: [text] auto [explain-button] auto;
+    gap: 0.5em;
+    justify-content: start;
+    align-content: center;
+    background-color: var(--color-unsatisfied-bg);
+    color: var(--color-unsatisfied);
+    padding: var(--size-card-padding);
+    border-radius: var(--shape-card-border-radius);
+    font-weight: bolder;
+    box-shadow: var(--shadow-card);
 
-  &.satisfied {
-    background-color: var(--color-satisfied-bg);
-    color: var(--color-satisfied);
-  }
+    &.satisfied {
+        background-color: var(--color-satisfied-bg);
+        color: var(--color-satisfied);
+    }
 }
 
 .text {
-  grid-area: text;
-  align-self: center;
+    grid-area: text;
+    align-self: center;
 }
 
 .explain-button {
-  grid-area: explain-button;
+    grid-area: explain-button;
 }
 </style>

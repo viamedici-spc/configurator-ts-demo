@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import {
-  AttributeType,
-  ComponentDecisionState, ConfigurationInterpreter, ConfiguratorErrorType,
-  DecisionKind, ExplainQuestionSubject,
-  ExplainQuestionType, ExplicitComponentDecision,
+    AttributeType,
+    ComponentDecisionState,
+    ConfigurationInterpreter,
+    ConfiguratorErrorType,
+    DecisionKind,
+    ExplainQuestionSubject,
+    ExplainQuestionType,
+    ExplicitComponentDecision,
 } from "@viamedici-spc/configurator-ts";
-import { handleDecisionResponse } from "../../../utils/PromiseErrorHandling";
-import { attributeIdToString } from "../../../utils/Naming";
-import CommonValueSelection, { AllowedValue, Value } from "../CommonValueSelection.vue";
-import { handleExplain } from "../../../utils/Explain";
-import { computed } from "vue";
-import { useActiveAttribute, useConfiguration, useSession } from "../../../utils/Contexts";
+import {handleDecisionResponse} from "../../../utils/PromiseErrorHandling";
+import {attributeIdToString} from "../../../utils/Naming";
+import CommonValueSelection, {AllowedValue, Value} from "../CommonValueSelection.vue";
+import {handleExplain} from "../../../utils/Explain";
+import {computed} from "vue";
+import {useActiveAttribute, useConfiguration, useSession} from "../../../utils/Contexts";
 
 const nothingValueId = "<nothing>";
 const includedValueId = "included";
@@ -21,104 +25,128 @@ const session = useSession();
 const configuration = useConfiguration();
 
 const model = computed(() => {
-  const attributeId = activeAttribute.value;
-  const attribute = ConfigurationInterpreter.getComponentAttribute(configuration.value, attributeId);
-  if (attribute == undefined) {
-    console.error("Component attribute not found with id", attributeId)
-    throw new Error("Component attribute not found");
-  }
-
-  const selectedValue = attribute.decision?.state === ComponentDecisionState.Included
-      ? includedValueId
-      : attribute.decision?.state === ComponentDecisionState.Excluded
-          ? excludedValueId
-          : nothingValueId;
-
-  const isIncludedStatePossible = attribute.possibleDecisionStates.includes(ComponentDecisionState.Included);
-  const isExcludedStatePossible = attribute.possibleDecisionStates.includes(ComponentDecisionState.Excluded);
-  const excludedValue: AllowedValue = {
-    id: excludedValueId,
-    name: "excluded",
-    isImplicit: attribute.decision?.state === ComponentDecisionState.Excluded && attribute.decision?.kind === DecisionKind.Implicit,
-    isImmutable: attribute.isPossibleDecisionStatesImmutable
-  };
-  const includedValue: AllowedValue = {
-    id: includedValueId,
-    name: "included",
-    isImplicit: attribute.decision?.state === ComponentDecisionState.Included && attribute.decision?.kind === DecisionKind.Implicit,
-    isImmutable: attribute.isPossibleDecisionStatesImmutable
-  };
-  const allowedValues = [
-    ...(isIncludedStatePossible ? [includedValue] : []),
-    ...(isExcludedStatePossible ? [excludedValue] : [])
-  ];
-  const blockedValues = [
-    ...(!isIncludedStatePossible ? [includedValue] : []),
-    ...(!isExcludedStatePossible ? [excludedValue] : [])
-  ];
-
-  const onChange = async (valueId: string) => {
-    if (valueId === nothingValueId) {
-      if (attribute.decision?.kind === DecisionKind.Explicit) {
-        console.info("Reset decision for %s", attributeIdToString(attribute.id));
-        await handleDecisionResponse(() => session.makeDecision({
-              type: AttributeType.Component,
-              attributeId: attributeId,
-              state: null
-            } as ExplicitComponentDecision)
-        );
-      }
-    } else {
-      const state = valueId === includedValueId ? ComponentDecisionState.Included : ComponentDecisionState.Excluded;
-      if (attribute.possibleDecisionStates.includes(state)) {
-        console.info("Make decision for %s: %s", attributeIdToString(attribute.id), state.toString());
-
-        await handleDecisionResponse(() => session.makeDecision({
-              type: AttributeType.Component,
-              attributeId: attributeId,
-              state
-            } as ExplicitComponentDecision),
-            (e) => {
-              if (e.type === ConfiguratorErrorType.ConflictWithConsequence) {
-                return () => handleExplain(() => session.explain({
-                  subject: ExplainQuestionSubject.component,
-                  question: ExplainQuestionType.whyIsStateNotPossible,
-                  state,
-                  attributeId
-                }, "full"), s => session.applySolution(s));
-              }
-              return null;
-            }
-        );
-      } else {
-        console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), state.toString());
-
-        await handleExplain(() => session.explain({
-          subject: ExplainQuestionSubject.component,
-          question: ExplainQuestionType.whyIsStateNotPossible,
-          state,
-          attributeId
-        }, "full"), s => session.applySolution(s));
-      }
+    const attributeId = activeAttribute.value;
+    const attribute = ConfigurationInterpreter.getComponentAttribute(configuration.value, attributeId);
+    if (attribute == undefined) {
+        console.error("Component attribute not found with id", attributeId);
+        throw new Error("Component attribute not found");
     }
-  };
 
-  return {
-    allowedValues,
-    blockedValues,
-    selectedValue,
-    onChange
-  }
-})
+    const selectedValue =
+        attribute.decision?.state === ComponentDecisionState.Included
+            ? includedValueId
+            : attribute.decision?.state === ComponentDecisionState.Excluded
+              ? excludedValueId
+              : nothingValueId;
+
+    const isIncludedStatePossible = attribute.possibleDecisionStates.includes(ComponentDecisionState.Included);
+    const isExcludedStatePossible = attribute.possibleDecisionStates.includes(ComponentDecisionState.Excluded);
+    const excludedValue: AllowedValue = {
+        id: excludedValueId,
+        name: "excluded",
+        isImplicit:
+            attribute.decision?.state === ComponentDecisionState.Excluded &&
+            attribute.decision?.kind === DecisionKind.Implicit,
+        isImmutable: attribute.isPossibleDecisionStatesImmutable,
+    };
+    const includedValue: AllowedValue = {
+        id: includedValueId,
+        name: "included",
+        isImplicit:
+            attribute.decision?.state === ComponentDecisionState.Included &&
+            attribute.decision?.kind === DecisionKind.Implicit,
+        isImmutable: attribute.isPossibleDecisionStatesImmutable,
+    };
+    const allowedValues = [
+        ...(isIncludedStatePossible ? [includedValue] : []),
+        ...(isExcludedStatePossible ? [excludedValue] : []),
+    ];
+    const blockedValues = [
+        ...(!isIncludedStatePossible ? [includedValue] : []),
+        ...(!isExcludedStatePossible ? [excludedValue] : []),
+    ];
+
+    const onChange = async (valueId: string) => {
+        if (valueId === nothingValueId) {
+            if (attribute.decision?.kind === DecisionKind.Explicit) {
+                console.info("Reset decision for %s", attributeIdToString(attribute.id));
+                await handleDecisionResponse(() =>
+                    session.makeDecision({
+                        type: AttributeType.Component,
+                        attributeId: attributeId,
+                        state: null,
+                    } as ExplicitComponentDecision),
+                );
+            }
+        } else {
+            const state =
+                valueId === includedValueId ? ComponentDecisionState.Included : ComponentDecisionState.Excluded;
+            if (attribute.possibleDecisionStates.includes(state)) {
+                console.info("Make decision for %s: %s", attributeIdToString(attribute.id), state.toString());
+
+                await handleDecisionResponse(
+                    () =>
+                        session.makeDecision({
+                            type: AttributeType.Component,
+                            attributeId: attributeId,
+                            state,
+                        } as ExplicitComponentDecision),
+                    e => {
+                        if (e.type === ConfiguratorErrorType.ConflictWithConsequence) {
+                            return () =>
+                                handleExplain(
+                                    () =>
+                                        session.explain(
+                                            {
+                                                subject: ExplainQuestionSubject.component,
+                                                question: ExplainQuestionType.whyIsStateNotPossible,
+                                                state,
+                                                attributeId,
+                                            },
+                                            "full",
+                                        ),
+                                    s => session.applySolution(s),
+                                );
+                        }
+                        return null;
+                    },
+                );
+            } else {
+                console.info("Explain blocked value for %s: %s", attributeIdToString(attribute.id), state.toString());
+
+                await handleExplain(
+                    () =>
+                        session.explain(
+                            {
+                                subject: ExplainQuestionSubject.component,
+                                question: ExplainQuestionType.whyIsStateNotPossible,
+                                state,
+                                attributeId,
+                            },
+                            "full",
+                        ),
+                    s => session.applySolution(s),
+                );
+            }
+        }
+    };
+
+    return {
+        allowedValues,
+        blockedValues,
+        selectedValue,
+        onChange,
+    };
+});
 </script>
 
 <template>
-  <CommonValueSelection
-      :nothingValue="{ id: nothingValueId, name: model.selectedValue !== nothingValueId ? 'Reset' : '' }"
-      :allowedValues="model.allowedValues"
-      :blockedValues="model.blockedValues"
-      :isMultiselect="false"
-      :selectedValues="model.selectedValue"
-      @change="model.onChange"
-  />
+    <CommonValueSelection
+        :nothingValue="{id: nothingValueId, name: model.selectedValue !== nothingValueId ? 'Reset' : ''}"
+        :allowedValues="model.allowedValues"
+        :blockedValues="model.blockedValues"
+        :isMultiselect="false"
+        :selectedValues="model.selectedValue"
+        @change="model.onChange"
+    />
 </template>
