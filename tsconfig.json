@@ -1,20 +1,15 @@
 {
   "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "noEmitOnError": false,
-    "removeComments": true,
-    "sourceMap": false,
-    "target": "ES2020",
-    "pretty": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "jsx": "preserve",
+    "noEmit": true,
+    "strict": false,
     "skipLibCheck": true,
-    "lib": [
-      "ES2020",
-      "dom"
-    ]
+    "types": ["vite/client"]
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.vue", "vite.config.ts"]
 }

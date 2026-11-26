@@ -1,5 +1,6 @@
-import {InjectionKey, Ref, provide, inject, ShallowRef} from "vue";
-import {Configuration, GlobalAttributeId, IConfigurationSession} from "@viamedici-spc/configurator-ts";
+import type {InjectionKey, Ref, ShallowRef} from "vue";
+import { provide, inject} from "vue";
+import type {Configuration, GlobalAttributeId, IConfigurationSession} from "@viamedici-spc/configurator-ts";
 
 const configurationContextKey: InjectionKey<Ref<Configuration>> = Symbol("ConfigurationContext");
 const sessionContextKey: InjectionKey<Readonly<IConfigurationSession>> = Symbol("SessionContext");
