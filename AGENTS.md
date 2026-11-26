@@ -18,6 +18,8 @@
   release age in `bunfig.toml`, so library prereleases install right away.
 - `bun run dev` starts the Vite dev server on `http://localhost:3000`.
 - `bun run verify` is the gate, its steps in parallel: `vue-tsc`, oxlint, `bun fmt --check`, the build.
+- The demo stays on TypeScript 5: vue-tsc needs the JavaScript API of the `typescript` package, which the TypeScript 7
+  package no longer exports (only `./unstable/*`).
 - `bun run build` builds the app into `dist/`; `bun run preview` serves the build.
 - CI (`.github/workflows/deploy.yml`) builds every push and pull request (a branch with an open pull request builds
   twice) on the shared `pages-bun` workflow; it deploys to GitHub Pages only on a manual run (`workflow_dispatch`) on
