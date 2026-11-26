@@ -96,7 +96,7 @@ const model = computed(() => {
                         state: state,
                     } as ExplicitChoiceDecision),
                 e => {
-                    if (e.type === ConfiguratorErrorType.ConflictWithConsequence) {
+                    if (e.type === ConfiguratorErrorType.ConflictWithConsequence && state !== null) {
                         return () =>
                             handleExplain(
                                 () =>
