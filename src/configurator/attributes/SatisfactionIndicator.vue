@@ -9,33 +9,39 @@ const configuration = useConfiguration();
 const session = useSession();
 
 const attribute = computed(() => {
-  const result = ConfigurationInterpreter.getAttribute(configuration.value, activeAttribute.value);
-  if (result === undefined) {
-    throw new Error("Attribute not found");
-  }
-  return result;
+    const result = ConfigurationInterpreter.getAttribute(configuration.value, activeAttribute.value);
+    if (result === undefined) {
+        throw new Error("Attribute not found");
+    }
+    return result;
 });
 
 const model = computed(() => {
-  return {
-    label: attribute.value.isSatisfied
-        ? `satisfied${attribute.value.canContributeToConfigurationSatisfaction ? " (can contribute)" : ""}`
-        : "unsatisfied",
-    color: attribute.value.canContributeToConfigurationSatisfaction
-        ? 'var(--color-mandatory)'
-        : (attribute.value.isSatisfied ? 'var(--color-satisfied)' : 'var(--color-unsatisfied)')
-  }
+    return {
+        label: attribute.value.isSatisfied
+            ? `satisfied${attribute.value.canContributeToConfigurationSatisfaction ? " (can contribute)" : ""}`
+            : "unsatisfied",
+        color: attribute.value.canContributeToConfigurationSatisfaction
+            ? "var(--color-mandatory)"
+            : attribute.value.isSatisfied
+              ? "var(--color-satisfied)"
+              : "var(--color-unsatisfied)",
+    };
 });
 
 const onExplain = () => {
-  handleExplain(() => session.explain(b => b.whyIsNotSatisfied.attribute(attribute.value.id), "full"), s => session.applySolution(s));
+    handleExplain(
+        () => session.explain(b => b.whyIsNotSatisfied.attribute(attribute.value.id), "full"),
+        s => session.applySolution(s),
+    );
 };
-
 </script>
 
 <template>
-  <span :style="{ color: model.color }">
-    {{ model.label }}
-  </span>
-  <button v-if="!attribute.isSatisfied" @click="onExplain" :style="{marginLeft: '0.4em', padding: '0'}">Explain</button>
+    <span :style="{color: model.color}">
+        {{ model.label }}
+    </span>
+    <button v-if="!attribute.isSatisfied" @click="onExplain" :style="{marginLeft: '0.4em', padding: '0'}">
+        Explain
+    </button>
 </template>
